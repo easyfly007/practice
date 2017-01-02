@@ -41,5 +41,5 @@ def handwritingclassifier():
 	print('\n the total error rate is %f' %(errorcount/float(mtest)))
 
 
-
-handwritingclassifier()
+if __name__ == '__main__':
+	handwritingclassifier()
