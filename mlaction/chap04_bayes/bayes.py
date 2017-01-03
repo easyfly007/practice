@@ -17,9 +17,9 @@ def loaddataset():
 	return posttingglist, classvec
 
 def createvocablist(dataset):
-	vocabset = set([])
-	for document in dataset:
-		vocabset = vocabset | set(document)
+	# vocabset = set([])
+	# for document in dataset:
+	# 	vocabset = vocabset | set(document)
 	# return list(vocabset)
 	return list(functools.reduce(lambda x,y:set(x)|set(y), dataset))
 
@@ -203,9 +203,7 @@ def spamtest2():
 	print('the end')
 	
 	
-
-
-
 if __name__ == '__main__':
 	spamtest2()
+
 
