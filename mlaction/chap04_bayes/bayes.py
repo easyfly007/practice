@@ -2,6 +2,8 @@ import numpy as np
 import functools
 import os
 import random
+import operator
+import feedparser
 
 def loaddataset():
 	posttingglist = [
@@ -142,6 +144,62 @@ def testNB():
 	print(testentry, ' classified as: ', classifyNB(thisdoc, p0v, p1v, pab))
 
 
+
+def calcmostfreq(vocablist, fulltext):
+	freqdict = {}
+	for token in vocablist:
+		freqdict[token] = fulltext.count(token)
+	sortedfreq = sorted(freqdict.items(), key = operator.itemgetter(1), reverse = True)
+	return sortedfreq[:30]
+
+def localwords(feed1, feed0):
+	import feedparser
+	doclist = []
+	classlist = []
+	fulltext = []
+	minlen = min(len(feed1['entries'][i]['summary']), len(feed0['entries'][i]['summary']))
+	for i in range(minlen):
+		wordlist = textparse(feed1['entries'][i]['summary'])
+		doclist.append(wordlist)
+		fulltext.extend(wordlist)
+		classlist.append(1)
+
+		wordlist = textparse(feed0['entries'][i]['summary'])
+		doclist.append(wordlist)
+		fulltext.extend(wordlist)
+		classlist.append(0)
+	vocablist = createvocablist(doclist)
+	top30words = calcmostfreq(vocablist, fulltext)
+	for i in range(20):
+		randindex = int(random.uniform(0, len(trainingset)))
+		testset.append(trainingset[randindex])
+		del(trainingset[randindex])
+
+	trainmat = []
+	trainclasses = []
+	for docindex in trainingset:
+		trainmat.append(bagofwords2vec(vocablist, doclist[docindex]))
+		trainclasses.append(classlist[docindex])
+	p0v, p1v, pspam =trainNB0(np.array(trainmat), np.array(trainclasses))
+	errorcount = 0
+	for docindex in testset:
+		wordvector = bagofwords2vec(vocablist, doclist[docindex])
+		if classifyNB(np.array(wordvector), p0v, p1v, pspam) != classlist[docindex]:
+			errorcount += 1
+	print('the error rate is: ', float(errorcount)/len(testset))
+	return vocablist, p0v, p1v
+
+
+def spamtest2():
+	ny = feedparser.parse('http://newyork.craigslist.org/stp/index.rss')
+	sf = feedparser.parse('http://sfbay.craigslist.org/stp/index.rss')
+	vocablist, psf, pny = localwords(ny, sf)
+	vocablist, psf, pny = localwords(ny, sf)
+	
+	
+
+
+
 if __name__ == '__main__':
-	spamtest()
+	spamtest2()
 
