@@ -157,7 +157,9 @@ def localwords(feed1, feed0):
 	doclist = []
 	classlist = []
 	fulltext = []
-	minlen = min(len(feed1['entries'][i]['summary']), len(feed0['entries'][i]['summary']))
+	minlen = min(len(feed1['entries']), len(feed0['entries']))
+	print(len(feed1['entries']))
+	print(len(feed0['entries']))
 	for i in range(minlen):
 		wordlist = textparse(feed1['entries'][i]['summary'])
 		doclist.append(wordlist)
@@ -170,6 +172,9 @@ def localwords(feed1, feed0):
 		classlist.append(0)
 	vocablist = createvocablist(doclist)
 	top30words = calcmostfreq(vocablist, fulltext)
+
+	trainingset = [x for x in range(2*minlen)]
+	testset = []
 	for i in range(20):
 		randindex = int(random.uniform(0, len(trainingset)))
 		testset.append(trainingset[randindex])
@@ -195,6 +200,7 @@ def spamtest2():
 	sf = feedparser.parse('http://sfbay.craigslist.org/stp/index.rss')
 	vocablist, psf, pny = localwords(ny, sf)
 	vocablist, psf, pny = localwords(ny, sf)
+	print('the end')
 	
 	
 
