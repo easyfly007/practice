@@ -1,5 +1,7 @@
 import numpy as np
 import functools
+import os
+import random
 
 def loaddataset():
 	posttingglist = [
@@ -78,8 +80,52 @@ def classifyNB(vec2classify, p0vec, p1vec, pclass1):
 		return 0
 
 
+def textparse(bigstring):
+	import re
+	listoftokens = re.split(r'\W*', bigstring)
+	return [tok.lower() for tok in listoftokens if len(tok)>2]
 
+def spamtest():
+	doclist = []
+	classlist = []
+	fulltext = []
+	for i in range(1,26):
+		wordlist = textparse(open('spam/%d.txt' %i).read())
+		# os.system('pause')
+		doclist.append(wordlist)
+		fulltext.extend(wordlist)
+		classlist.append(1)
+		filename = 'ham/'+str(i)+'.txt'
+		wordlist = textparse(open(filename).read())
+		doclist.append(wordlist)
+		fulltext.extend(wordlist)
+		classlist.append(0)
+	# os.system('pause')
+	vocablist = createvocablist(doclist)
 
+	trainingset = [x for x in range(50)]
+	random.shuffle(trainingset)
+	testset, trainingset = trainingset[0:10], trainingset[11:]
+
+	# for i in range(10):
+	# 	randindex = int(np.random.uniform(0, len(trainingset)))
+	# 	print(randindex)
+	# 	testset.append(trainingset[randindex])
+	# 	del(trainingset[randindex])
+
+	trainingclasses = []
+	trainmat = []
+	for docindex in trainingset:
+		trainmat.append(setofwords2vec(vocablist, doclist[docindex]))
+		trainingclasses.append(classlist[docindex])
+	p0v, p1v, pspam = trainNB0(np.array(trainmat), np.array(trainingclasses))
+	errorcount = 0
+
+	for docindex in testset:
+		wordvector = setofwords2vec(vocablist, doclist[docindex])
+		if classifyNB(wordvector, p0v, p1v, pspam) != classlist[docindex]:
+			errorcount += 1
+	print('the total error rate is: ', np.float(errorcount)/len(testset))
 
 def testNB():
 	listofposts, listclasses = loaddataset()
@@ -95,6 +141,7 @@ def testNB():
 	thisdoc = np.array(setofwords2vec(myvocablist, testentry))
 	print(testentry, ' classified as: ', classifyNB(thisdoc, p0v, p1v, pab))
 
+
 if __name__ == '__main__':
-	testNB()
+	spamtest()
 
