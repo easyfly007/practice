@@ -37,6 +37,23 @@ def gradascent(datalist, labellist):
 		weights = weights + alpha*datamat.transpose()*error
 	return weights
 
+def stochasticgradientascent(datamat, classlabels):
+	datamat = np.mat(datamat)
+
+	m,n = datamat.shape
+	alpha = 0.001
+	weights = np.ones((n,1))
+	epoch = 200
+	for k in range(epoch):
+		for i in range(m):
+			# print(datamat[i].shape)
+			# os.system('pause')
+			h = sigmoid(sum(datamat[i]*weights))
+			error = classlabels[i] -h
+			weights += (alpha*error*datamat[i]).transpose()
+	return weights
+
+
 def plotbestfit(weights):
 	import matplotlib.pyplot as plt 
 	datamat, labelmat = loaddataset()
@@ -66,7 +83,7 @@ def plotbestfit(weights):
 
 def test():
 	datalist, labellist = loaddataset()
-	weights = gradascent(datalist, labellist)
+	weights = stochasticgradientascent(np.array(datalist), labellist)
 	plotbestfit(weights)
 
 
