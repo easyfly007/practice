@@ -59,11 +59,10 @@ def stochasticgradientascent1(datamat, classlabels):
 	datamat = np.mat(datamat)
 	m,n = datamat.shape
 	weights = np.ones((n,1))
-
 	dataindex = [x for x in range(m)]
 	random.shuffle(dataindex)
 	
-	numIter = 50
+	numIter = 100
 	for j in range(numIter):
 		for i in range(m):
 			alpha = 4.0/(1.0+j+i)+0.01
@@ -102,10 +101,47 @@ def plotbestfit(weights):
 	plt.show()
 
 
+def classifyvector(x, w):
+	prob = sigmoid(sum(x*w))
+	if prob > 0.5:
+		return 1.0
+	else:
+		return 0.0
+
+def colictest():
+	ftrain = open('horseColicTraining.txt')
+	ftest  = open('horseColicTest.txt')
+	trainingset = []
+	traninglabel = []
+	for line in ftrain.readlines():
+		currline = line.strip().split('\t')
+		linearr = []
+		for attr in range(21):
+			linearr.append(float(currline[attr]))
+		trainingset.append(linearr)
+		traninglabel.append(float(currline[21]))
+	trainingweights = stochasticgradientascent1(np.array(trainingset), traninglabel)
+	errorcount = 0
+	numtestvec = 0
+	testset = []
+	for line in ftest.readlines():
+		numtestvec += 1
+		currline = line.strip().split('\t')
+		linearr = []
+		for sttr in range(21):
+			linearr.append(float(currline[attr]))
+		# testset.append(linearr)
+		if int(classifyvector(np.mat(linearr), np.mat(trainingweights))) != int(currline[21]):
+			errorcount += 1
+	errorrate = float(errorcount) / numtestvec
+	print('the error rate for test is: %f' %errorrate)
+	return errorrate
+
 def test():
-	datalist, labellist = loaddataset()
-	weights = stochasticgradientascent1(np.array(datalist), labellist)
-	plotbestfit(weights)
+	colictest()
+	# datalist, labellist = loaddataset()
+	# weights = stochasticgradientascent1(np.array(datalist), labellist)
+	# plotbestfit(weights)
 
 
 if __name__ == '__main__':
