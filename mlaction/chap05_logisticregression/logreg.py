@@ -1,5 +1,7 @@
 import numpy as np
 import os
+import matplotlib.pyplot as plt
+import random
 
 def loaddataset():
 	datamat = []
@@ -37,13 +39,13 @@ def gradascent(datalist, labellist):
 		weights = weights + alpha*datamat.transpose()*error
 	return weights
 
-def stochasticgradientascent(datamat, classlabels):
+def stochasticgradientascent0(datamat, classlabels):
 	datamat = np.mat(datamat)
 
 	m,n = datamat.shape
 	alpha = 0.001
 	weights = np.ones((n,1))
-	epoch = 200
+	epoch = 500
 	for k in range(epoch):
 		for i in range(m):
 			# print(datamat[i].shape)
@@ -53,9 +55,28 @@ def stochasticgradientascent(datamat, classlabels):
 			weights += (alpha*error*datamat[i]).transpose()
 	return weights
 
+def stochasticgradientascent1(datamat, classlabels):
+	datamat = np.mat(datamat)
+	m,n = datamat.shape
+	weights = np.ones((n,1))
+
+	dataindex = [x for x in range(m)]
+	random.shuffle(dataindex)
+	
+	numIter = 50
+	for j in range(numIter):
+		for i in range(m):
+			alpha = 4.0/(1.0+j+i)+0.01
+			randindex = dataindex[i]
+			h = sigmoid(sum(datamat[randindex]*weights))
+			error = classlabels[randindex] -h
+			weights += (alpha*error*datamat[randindex]).transpose()
+	return weights
+
+
 
 def plotbestfit(weights):
-	import matplotlib.pyplot as plt 
+
 	datamat, labelmat = loaddataset()
 	dataarr = np.array(datamat)
 	n = np.shape(dataarr)[0]
@@ -83,7 +104,7 @@ def plotbestfit(weights):
 
 def test():
 	datalist, labellist = loaddataset()
-	weights = stochasticgradientascent(np.array(datalist), labellist)
+	weights = stochasticgradientascent1(np.array(datalist), labellist)
 	plotbestfit(weights)
 
 
