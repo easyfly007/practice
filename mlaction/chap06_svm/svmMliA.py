@@ -23,7 +23,3 @@ def clipalpha(aj, high, low):
 	if aj < low:
 		aj = low
 	return aj
-
-
-
-
