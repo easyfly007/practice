@@ -1,6 +1,8 @@
 import numpy as np
 from data_prep import features, targets, features_test, targets_test
 
+# the material can be found at
+# http://www.ats.ucla.edu/stat/data/binary.csv
 
 def sigmoid(x):
     """
