@@ -42,12 +42,13 @@ class NeuralNetwork(object):
 		self.weights_hidden_to_output =	np.random.normal(0.0, self.output_nodes**-0.5, (self.output_nodes, self.hidden_nodes))
 		self.lr = learning_rate
 
-		self.activation_function = lambda x: 1.0/(1.0+np.exp(x))
+		self.activation_function = lambda x: 1.0/(1.0+np.exp(-x))
 
 
 	def train(self, inputs_list, targets_list):
 		inputs = np.array(inputs_list, ndmin = 2).T
 		targets = np.array(targets_list,ndmin = 2).T
+
 		hidden_inputs = np.dot(self.weights_input_to_hidden, inputs)
 		hidden_outputs = self.activation_function(hidden_inputs)
 
