@@ -184,14 +184,14 @@ def conv_backward_naive(dout, cache, debug=False):
   dx = col2im_indices(dx_cols, x.shape, field_height=HH, field_width=WW, padding=pad, stride=stride, verbose=True)
 
   if debug:
-    print "dout's shape: {}".format( str(dout.shape) ) 
-    print "dout's reshape: {}".format( str(dout_reshape.shape))
-    print "x's shape: {}".format( str(x.shape) )
-    print "x's cols: {}".format( str(x_cols.shape))
-    print "w's shape: {}".format( str(w.shape) )
-    print "b's shape: {}".format( str(b.shape) )
-    print "stride: {}".format( str(conv_param["stride"]) )
-    print "padding: {}".format( str(conv_param["pad"]) )
+    print("dout's shape: {}".format( str(dout.shape) ) )
+    print("dout's reshape: {}".format( str(dout_reshape.shape)))
+    print("x's shape: {}".format( str(x.shape) ))
+    print("x's cols: {}".format( str(x_cols.shape)))
+    print("w's shape: {}".format( str(w.shape) ))
+    print("b's shape: {}".format( str(b.shape) ))
+    print("stride: {}".format( str(conv_param["stride"])) )
+    print("padding: {}".format( str(conv_param["pad"]) ))
 
 
   return dx, dw, db

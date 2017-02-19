@@ -68,7 +68,7 @@ class ClassifierTrainer(object):
     train_acc_history = []
     val_acc_history = []
     for it in xrange(num_iters):
-      if it % 500 == 0:  print 'starting iteration ', it
+      if it % 500 == 0:  print('starting iteration ', it)
 
       # get batch of data
       if sample_batches:
@@ -155,7 +155,7 @@ class ClassifierTrainer(object):
                  % (epoch, num_epochs, cost, train_acc, val_acc, learning_rate))
 
     if verbose:
-      print 'finished optimization. best validation accuracy: %f' % (best_val_acc, )
+      print('inished optimization. best validation accuracy: %f' % (best_val_acc, ))
     # return the best model and the training history statistics
     return best_model, loss_history, train_acc_history, val_acc_history
 
