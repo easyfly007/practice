@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<!-- saved from url=(0043)https://zybuluo.com/hanxiaoyang/note/472184 -->
+<html class="theme theme-white"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    
+    <meta name="description" content="Cmd Markdown 编辑阅读器，支持实时同步预览，区分写作和阅读模式，支持在线存储，分享文稿网址。">
+    <meta name="author" content="Jiawei Zhang">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    
+    <title>word2vec训练中文模型 - 作业部落 Cmd Markdown 编辑阅读器</title>
+
+
+    <link href="https://zybuluo.com/static/img/favicon.png" type="image/x-icon" rel="icon">
+
+    <link href="./word2vec训练中文模型 - 作业部落 Cmd Markdown 编辑阅读器_files/1bc053c8.base.lib.min.css" rel="stylesheet" media="screen">
+
+
+    
+    <!-- id="prettify-style" will be used to get the link element below and change href to change prettify code, so it can't be in beginmin/endmin block. -->
+    <link id="prettify-style" href="./word2vec训练中文模型 - 作业部落 Cmd Markdown 编辑阅读器_files/prettify-cmd.css" type="text/css" rel="stylesheet">
+    <!--
+    <link id="mermaid-style" href="https://zybuluo.com/static/editor/libs/mermaid/mermaid.forest.css" type="text/css" rel="stylesheet">
+    -->
+    <link href="./word2vec训练中文模型 - 作业部落 Cmd Markdown 编辑阅读器_files/45c7d56d.layout.min.css" rel="stylesheet" media="screen">
+
+
+    
+
+    <script async="" src="./word2vec训练中文模型 - 作业部落 Cmd Markdown 编辑阅读器_files/analytics.js.download"></script><script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-44461741-1', 'zybuluo.com');
+      ga('send', 'pageview');
+    </script>
+<style type="text/css">.MathJax_Hover_Frame {border-radius: .25em; -webkit-border-radius: .25em; -moz-border-radius: .25em; -khtml-border-radius: .25em; box-shadow: 0px 0px 15px #83A; -webkit-box-shadow: 0px 0px 15px #83A; -moz-box-shadow: 0px 0px 15px #83A; -khtml-box-shadow: 0px 0px 15px #83A; border: 1px solid #A6D ! important; display: inline-block; position: absolute}
+.MathJax_Hover_Arrow {position: absolute; width: 15px; height: 11px; cursor: pointer}
+</style><style type="text/css">#MathJax_About {position: fixed; left: 50%; width: auto; text-align: center; border: 3px outset; padding: 1em 2em; background-color: #DDDDDD; color: black; cursor: default; font-family: message-box; font-size: 120%; font-style: normal; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 15px; -webkit-border-radius: 15px; -moz-border-radius: 15px; -khtml-border-radius: 15px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+.MathJax_Menu {position: absolute; background-color: white; color: black; width: auto; padding: 2px; border: 1px solid #CCCCCC; margin: 0; cursor: default; font: menu; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+.MathJax_MenuItem {padding: 2px 2em; background: transparent}
+.MathJax_MenuArrow {position: absolute; right: .5em; color: #666666}
+.MathJax_MenuActive .MathJax_MenuArrow {color: white}
+.MathJax_MenuCheck {position: absolute; left: .7em}
+.MathJax_MenuRadioCheck {position: absolute; left: 1em}
+.MathJax_MenuLabel {padding: 2px 2em 4px 1.33em; font-style: italic}
+.MathJax_MenuRule {border-top: 1px solid #CCCCCC; margin: 4px 1px 0px}
+.MathJax_MenuDisabled {color: GrayText}
+.MathJax_MenuActive {background-color: Highlight; color: HighlightText}
+.MathJax_Menu_Close {position: absolute; width: 31px; height: 31px; top: -15px; left: -15px}
+</style><style type="text/css">#MathJax_Zoom {position: absolute; background-color: #F0F0F0; overflow: auto; display: block; z-index: 301; padding: .5em; border: 1px solid black; margin: 0; font-weight: normal; font-style: normal; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; box-shadow: 5px 5px 15px #AAAAAA; -webkit-box-shadow: 5px 5px 15px #AAAAAA; -moz-box-shadow: 5px 5px 15px #AAAAAA; -khtml-box-shadow: 5px 5px 15px #AAAAAA; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_ZoomOverlay {position: absolute; left: 0; top: 0; z-index: 300; display: inline-block; width: 100%; height: 100%; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+#MathJax_ZoomFrame {position: relative; display: inline-block; height: 0; width: 0}
+#MathJax_ZoomEventTrap {position: absolute; left: 0; top: 0; z-index: 302; display: inline-block; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+</style><style type="text/css">.MathJax_Preview {color: #888}
+#MathJax_Message {position: fixed; left: 1em; bottom: 1.5em; background-color: #E6E6E6; border: 1px solid #959595; margin: 0px; padding: 2px 8px; z-index: 102; color: black; font-size: 80%; width: auto; white-space: nowrap}
+#MathJax_MSIE_Frame {position: absolute; top: 0; left: 0; width: 0px; z-index: 101; border: 0px; margin: 0px; padding: 0px}
+.MathJax_Error {color: #CC0000; font-style: italic}
+</style></head>
+
+<body class="theme  theme-white pace-done"><div id="MathJax_Message" style="display: none;"></div><div class="pace  pace-inactive"><div class="pace-progress" data-progress-text="100%" data-progress="99" style="width: 100%;">
+  <div class="pace-progress-inner"></div>
+</div>
+<div class="pace-activity"></div></div>
+
+    <div id="global-prompt-alert" class="hide alert alert-warning">
+        <span id="global-prompt-message"></span>
+        <a id="close-global-prompt-alert" href="https://zybuluo.com/hanxiaoyang/note/472184">[关闭]</a>
+    </div>
+
+    <!-- zybuluo's body -->
+    
+
+
+
+
+
+
+
+<!-- mdeditor's body -->
+
+
+
+
+
+
+<div id="editor-reader-full" class="editor-reader-full-shown" style="position: static; padding-right: 75px;">
+    <div id="reader-full-topInfo" class="reader-full-topInfo-shown">
+        <span>
+            <code>@hanxiaoyang</code>
+        </span>
+        <code><span class="article-updated-date">2016-11-08 23:15</span></code>
+        <code><span>字数 </span><span class="article-characters">9648</span></code>
+        <code><span>阅读 </span><span class="article-read">967</span></code>
+    </div>
+    <div id="wmd-preview" class="wmd-preview wmd-preview-full-reader" data-medium-element="true" style="left: 0px;"><div class="md-section-divider"></div><div class="md-section-divider"></div><h1 data-anchor-id="v0p9" id="word2vec训练中文模型">word2vec训练中文模型</h1><p data-anchor-id="6vdd"><code>word2vec</code></p><hr><div class="md-section-divider"></div><h2 data-anchor-id="9i7m" id="1准备数据与预处理">1.准备数据与预处理</h2><p data-anchor-id="5yy4">首先需要一份比较大的中文语料数据，可以考虑中文的维基百科（也可以试试搜狗的新闻语料库）。中文维基百科的打包文件地址为 <br>
+<a href="https://dumps.wikimedia.org/zhwiki/latest/zhwiki-latest-pages-articles.xml.bz2" target="_blank">https://dumps.wikimedia.org/zhwiki/latest/zhwiki-latest-pages-articles.xml.bz2</a></p><p data-anchor-id="og6n">中文维基百科的数据不是太大，xml的压缩文件大约1G左右。首先用 process_wiki_data.py处理这个XML压缩文件，执行：<code>python process_wiki_data.py zhwiki-latest-pages-articles.xml.bz2 wiki.zh.text</code></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="bvg2"><ol class="linenums"><li class="L0"><code class="language-python"><span class="com">#!/usr/bin/env python</span></code></li><li class="L1"><code class="language-python"><span class="com"># -*- coding: utf-8 -*-</span></code></li><li class="L2"><code class="language-python"><span class="com"># process_wiki_data.py 用于解析XML，将XML的wiki数据转换为text格式</span></code></li><li class="L3"><code class="language-python"></code></li><li class="L4"><code class="language-python"><span class="kwd">import</span><span class="pln"> logging</span></code></li><li class="L5"><code class="language-python"><span class="kwd">import</span><span class="pln"> os</span><span class="pun">.</span><span class="pln">path</span></code></li><li class="L6"><code class="language-python"><span class="kwd">import</span><span class="pln"> sys</span></code></li><li class="L7"><code class="language-python"></code></li><li class="L8"><code class="language-python"><span class="kwd">from</span><span class="pln"> gensim</span><span class="pun">.</span><span class="pln">corpora </span><span class="kwd">import</span><span class="pln"> </span><span class="typ">WikiCorpus</span></code></li><li class="L9"><code class="language-python"></code></li><li class="L0"><code class="language-python"><span class="kwd">if</span><span class="pln"> __name__ </span><span class="pun">==</span><span class="pln"> </span><span class="str">'__main__'</span><span class="pun">:</span></code></li><li class="L1"><code class="language-python"><span class="pln">    program </span><span class="pun">=</span><span class="pln"> os</span><span class="pun">.</span><span class="pln">path</span><span class="pun">.</span><span class="pln">basename</span><span class="pun">(</span><span class="pln">sys</span><span class="pun">.</span><span class="pln">argv</span><span class="pun">[</span><span class="lit">0</span><span class="pun">])</span></code></li><li class="L2"><code class="language-python"><span class="pln">    logger </span><span class="pun">=</span><span class="pln"> logging</span><span class="pun">.</span><span class="pln">getLogger</span><span class="pun">(</span><span class="pln">program</span><span class="pun">)</span></code></li><li class="L3"><code class="language-python"></code></li><li class="L4"><code class="language-python"><span class="pln">    logging</span><span class="pun">.</span><span class="pln">basicConfig</span><span class="pun">(</span><span class="pln">format</span><span class="pun">=</span><span class="str">'%(asctime)s: %(levelname)s: %(message)s'</span><span class="pun">)</span></code></li><li class="L5"><code class="language-python"><span class="pln">    logging</span><span class="pun">.</span><span class="pln">root</span><span class="pun">.</span><span class="pln">setLevel</span><span class="pun">(</span><span class="pln">level</span><span class="pun">=</span><span class="pln">logging</span><span class="pun">.</span><span class="pln">INFO</span><span class="pun">)</span></code></li><li class="L6"><code class="language-python"><span class="pln">    logger</span><span class="pun">.</span><span class="pln">info</span><span class="pun">(</span><span class="str">"running %s"</span><span class="pln"> </span><span class="pun">%</span><span class="pln"> </span><span class="str">' '</span><span class="pun">.</span><span class="pln">join</span><span class="pun">(</span><span class="pln">sys</span><span class="pun">.</span><span class="pln">argv</span><span class="pun">))</span></code></li><li class="L7"><code class="language-python"></code></li><li class="L8"><code class="language-python"><span class="pln">    </span><span class="com"># check and process input arguments</span></code></li><li class="L9"><code class="language-python"><span class="pln">    </span><span class="kwd">if</span><span class="pln"> len</span><span class="pun">(</span><span class="pln">sys</span><span class="pun">.</span><span class="pln">argv</span><span class="pun">)</span><span class="pln"> </span><span class="pun">&lt;</span><span class="pln"> </span><span class="lit">3</span><span class="pun">:</span></code></li><li class="L0"><code class="language-python"><span class="pln">        </span><span class="kwd">print</span><span class="pln"> globals</span><span class="pun">()[</span><span class="str">'__doc__'</span><span class="pun">]</span><span class="pln"> </span><span class="pun">%</span><span class="pln"> locals</span><span class="pun">()</span></code></li><li class="L1"><code class="language-python"><span class="pln">        sys</span><span class="pun">.</span><span class="pln">exit</span><span class="pun">(</span><span class="lit">1</span><span class="pun">)</span></code></li><li class="L2"><code class="language-python"><span class="pln">    inp</span><span class="pun">,</span><span class="pln"> outp </span><span class="pun">=</span><span class="pln"> sys</span><span class="pun">.</span><span class="pln">argv</span><span class="pun">[</span><span class="lit">1</span><span class="pun">:</span><span class="lit">3</span><span class="pun">]</span></code></li><li class="L3"><code class="language-python"><span class="pln">    space </span><span class="pun">=</span><span class="pln"> </span><span class="str">" "</span></code></li><li class="L4"><code class="language-python"><span class="pln">    i </span><span class="pun">=</span><span class="pln"> </span><span class="lit">0</span></code></li><li class="L5"><code class="language-python"></code></li><li class="L6"><code class="language-python"><span class="pln">    output </span><span class="pun">=</span><span class="pln"> open</span><span class="pun">(</span><span class="pln">outp</span><span class="pun">,</span><span class="pln"> </span><span class="str">'w'</span><span class="pun">)</span></code></li><li class="L7"><code class="language-python"><span class="pln">    wiki </span><span class="pun">=</span><span class="pln"> </span><span class="typ">WikiCorpus</span><span class="pun">(</span><span class="pln">inp</span><span class="pun">,</span><span class="pln"> lemmatize</span><span class="pun">=</span><span class="kwd">False</span><span class="pun">,</span><span class="pln"> dictionary</span><span class="pun">={})</span></code></li><li class="L8"><code class="language-python"><span class="pln">    </span><span class="kwd">for</span><span class="pln"> text </span><span class="kwd">in</span><span class="pln"> wiki</span><span class="pun">.</span><span class="pln">get_texts</span><span class="pun">():</span></code></li><li class="L9"><code class="language-python"><span class="pln">        output</span><span class="pun">.</span><span class="pln">write</span><span class="pun">(</span><span class="pln">space</span><span class="pun">.</span><span class="pln">join</span><span class="pun">(</span><span class="pln">text</span><span class="pun">)</span><span class="pln"> </span><span class="pun">+</span><span class="pln"> </span><span class="str">"\n"</span><span class="pun">)</span></code></li><li class="L0"><code class="language-python"><span class="pln">        i </span><span class="pun">=</span><span class="pln"> i </span><span class="pun">+</span><span class="pln"> </span><span class="lit">1</span></code></li><li class="L1"><code class="language-python"><span class="pln">        </span><span class="kwd">if</span><span class="pln"> </span><span class="pun">(</span><span class="pln">i </span><span class="pun">%</span><span class="pln"> </span><span class="lit">10000</span><span class="pln"> </span><span class="pun">==</span><span class="pln"> </span><span class="lit">0</span><span class="pun">):</span></code></li><li class="L2"><code class="language-python"><span class="pln">            logger</span><span class="pun">.</span><span class="pln">info</span><span class="pun">(</span><span class="str">"Saved "</span><span class="pln"> </span><span class="pun">+</span><span class="pln"> str</span><span class="pun">(</span><span class="pln">i</span><span class="pun">)</span><span class="pln"> </span><span class="pun">+</span><span class="pln"> </span><span class="str">" articles"</span><span class="pun">)</span></code></li><li class="L3"><code class="language-python"></code></li><li class="L4"><code class="language-python"><span class="pln">    output</span><span class="pun">.</span><span class="pln">close</span><span class="pun">()</span></code></li><li class="L5"><code class="language-python"><span class="pln">    logger</span><span class="pun">.</span><span class="pln">info</span><span class="pun">(</span><span class="str">"Finished Saved "</span><span class="pln"> </span><span class="pun">+</span><span class="pln"> str</span><span class="pun">(</span><span class="pln">i</span><span class="pun">)</span><span class="pln"> </span><span class="pun">+</span><span class="pln"> </span><span class="str">" articles"</span><span class="pun">)</span></code></li></ol></pre><p data-anchor-id="vqh1">得到信息：</p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="3rqy"><ol class="linenums"><li class="L0"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">11</span><span class="pln"> </span><span class="lit">20</span><span class="pun">:</span><span class="lit">39</span><span class="pun">:</span><span class="lit">22</span><span class="pun">,</span><span class="lit">739</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> running process_wiki</span><span class="pun">.</span><span class="pln">py zhwiki</span><span class="pun">-</span><span class="pln">latest</span><span class="pun">-</span><span class="pln">pages</span><span class="pun">-</span><span class="pln">articles</span><span class="pun">.</span><span class="pln">xml</span><span class="pun">.</span><span class="pln">bz2 wiki</span><span class="pun">.</span><span class="pln">zh</span><span class="pun">.</span><span class="pln">text</span></code></li><li class="L1"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">11</span><span class="pln"> </span><span class="lit">20</span><span class="pun">:</span><span class="lit">40</span><span class="pun">:</span><span class="lit">08</span><span class="pun">,</span><span class="lit">329</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> </span><span class="typ">Saved</span><span class="pln"> </span><span class="lit">10000</span><span class="pln"> articles</span></code></li><li class="L2"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">11</span><span class="pln"> </span><span class="lit">20</span><span class="pun">:</span><span class="lit">40</span><span class="pun">:</span><span class="lit">45</span><span class="pun">,</span><span class="lit">501</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> </span><span class="typ">Saved</span><span class="pln"> </span><span class="lit">20000</span><span class="pln"> articles</span></code></li><li class="L3"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">11</span><span class="pln"> </span><span class="lit">20</span><span class="pun">:</span><span class="lit">41</span><span class="pun">:</span><span class="lit">23</span><span class="pun">,</span><span class="lit">659</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> </span><span class="typ">Saved</span><span class="pln"> </span><span class="lit">30000</span><span class="pln"> articles</span></code></li><li class="L4"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">11</span><span class="pln"> </span><span class="lit">20</span><span class="pun">:</span><span class="lit">42</span><span class="pun">:</span><span class="lit">01</span><span class="pun">,</span><span class="lit">748</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> </span><span class="typ">Saved</span><span class="pln"> </span><span class="lit">40000</span><span class="pln"> articles</span></code></li><li class="L5"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">11</span><span class="pln"> </span><span class="lit">20</span><span class="pun">:</span><span class="lit">42</span><span class="pun">:</span><span class="lit">33</span><span class="pun">,</span><span class="lit">779</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> </span><span class="typ">Saved</span><span class="pln"> </span><span class="lit">50000</span><span class="pln"> articles</span></code></li><li class="L6"><code><span class="pun">......</span></code></li><li class="L7"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">11</span><span class="pln"> </span><span class="lit">20</span><span class="pun">:</span><span class="lit">55</span><span class="pun">:</span><span class="lit">23</span><span class="pun">,</span><span class="lit">094</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> </span><span class="typ">Saved</span><span class="pln"> </span><span class="lit">200000</span><span class="pln"> articles</span></code></li><li class="L8"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">11</span><span class="pln"> </span><span class="lit">20</span><span class="pun">:</span><span class="lit">56</span><span class="pun">:</span><span class="lit">14</span><span class="pun">,</span><span class="lit">692</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> </span><span class="typ">Saved</span><span class="pln"> </span><span class="lit">210000</span><span class="pln"> articles</span></code></li><li class="L9"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">11</span><span class="pln"> </span><span class="lit">20</span><span class="pun">:</span><span class="lit">57</span><span class="pun">:</span><span class="lit">04</span><span class="pun">,</span><span class="lit">614</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> </span><span class="typ">Saved</span><span class="pln"> </span><span class="lit">220000</span><span class="pln"> articles</span></code></li><li class="L0"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">11</span><span class="pln"> </span><span class="lit">20</span><span class="pun">:</span><span class="lit">57</span><span class="pun">:</span><span class="lit">57</span><span class="pun">,</span><span class="lit">979</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> </span><span class="typ">Saved</span><span class="pln"> </span><span class="lit">230000</span><span class="pln"> articles</span></code></li><li class="L1"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">11</span><span class="pln"> </span><span class="lit">20</span><span class="pun">:</span><span class="lit">58</span><span class="pun">:</span><span class="lit">16</span><span class="pun">,</span><span class="lit">621</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> finished iterating over </span><span class="typ">Wikipedia</span><span class="pln"> corpus of </span><span class="lit">232894</span><span class="pln"> documents </span><span class="kwd">with</span><span class="pln"> </span><span class="lit">51603419</span><span class="pln"> positions </span><span class="pun">(</span><span class="pln">total </span><span class="lit">2581444</span><span class="pln"> articles</span><span class="pun">,</span><span class="pln"> </span><span class="lit">62177405</span><span class="pln"> positions before pruning articles shorter than </span><span class="lit">50</span><span class="pln"> words</span><span class="pun">)</span></code></li><li class="L2"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">11</span><span class="pln"> </span><span class="lit">20</span><span class="pun">:</span><span class="lit">58</span><span class="pun">:</span><span class="lit">16</span><span class="pun">,</span><span class="lit">622</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> </span><span class="typ">Finished</span><span class="pln"> </span><span class="typ">Saved</span><span class="pln"> </span><span class="lit">232894</span><span class="pln"> articles</span></code></li></ol></pre><p data-anchor-id="1nwy">Python的话可用jieba完成分词，生成分词文件wiki.zh.text.seg <br>
+接着用word2vec工具训练： <br>
+<code>python train_word2vec_model.py wiki.zh.text.seg wiki.zh.text.model wiki.zh.text.vector</code></p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="pxm7"><ol class="linenums"><li class="L0"><code class="language-python"><span class="com">#!/usr/bin/env python</span></code></li><li class="L1"><code class="language-python"><span class="com"># -*- coding: utf-8 -*-</span></code></li><li class="L2"><code class="language-python"><span class="com"># train_word2vec_model.py用于训练模型</span></code></li><li class="L3"><code class="language-python"></code></li><li class="L4"><code class="language-python"><span class="kwd">import</span><span class="pln"> logging</span></code></li><li class="L5"><code class="language-python"><span class="kwd">import</span><span class="pln"> os</span><span class="pun">.</span><span class="pln">path</span></code></li><li class="L6"><code class="language-python"><span class="kwd">import</span><span class="pln"> sys</span></code></li><li class="L7"><code class="language-python"><span class="kwd">import</span><span class="pln"> multiprocessing</span></code></li><li class="L8"><code class="language-python"></code></li><li class="L9"><code class="language-python"><span class="kwd">from</span><span class="pln"> gensim</span><span class="pun">.</span><span class="pln">corpora </span><span class="kwd">import</span><span class="pln"> </span><span class="typ">WikiCorpus</span></code></li><li class="L0"><code class="language-python"><span class="kwd">from</span><span class="pln"> gensim</span><span class="pun">.</span><span class="pln">models </span><span class="kwd">import</span><span class="pln"> </span><span class="typ">Word2Vec</span></code></li><li class="L1"><code class="language-python"><span class="kwd">from</span><span class="pln"> gensim</span><span class="pun">.</span><span class="pln">models</span><span class="pun">.</span><span class="pln">word2vec </span><span class="kwd">import</span><span class="pln"> </span><span class="typ">LineSentence</span></code></li><li class="L2"><code class="language-python"></code></li><li class="L3"><code class="language-python"><span class="kwd">if</span><span class="pln"> __name__ </span><span class="pun">==</span><span class="pln"> </span><span class="str">'__main__'</span><span class="pun">:</span></code></li><li class="L4"><code class="language-python"><span class="pln">    program </span><span class="pun">=</span><span class="pln"> os</span><span class="pun">.</span><span class="pln">path</span><span class="pun">.</span><span class="pln">basename</span><span class="pun">(</span><span class="pln">sys</span><span class="pun">.</span><span class="pln">argv</span><span class="pun">[</span><span class="lit">0</span><span class="pun">])</span></code></li><li class="L5"><code class="language-python"><span class="pln">    logger </span><span class="pun">=</span><span class="pln"> logging</span><span class="pun">.</span><span class="pln">getLogger</span><span class="pun">(</span><span class="pln">program</span><span class="pun">)</span></code></li><li class="L6"><code class="language-python"></code></li><li class="L7"><code class="language-python"><span class="pln">    logging</span><span class="pun">.</span><span class="pln">basicConfig</span><span class="pun">(</span><span class="pln">format</span><span class="pun">=</span><span class="str">'%(asctime)s: %(levelname)s: %(message)s'</span><span class="pun">)</span></code></li><li class="L8"><code class="language-python"><span class="pln">    logging</span><span class="pun">.</span><span class="pln">root</span><span class="pun">.</span><span class="pln">setLevel</span><span class="pun">(</span><span class="pln">level</span><span class="pun">=</span><span class="pln">logging</span><span class="pun">.</span><span class="pln">INFO</span><span class="pun">)</span></code></li><li class="L9"><code class="language-python"><span class="pln">    logger</span><span class="pun">.</span><span class="pln">info</span><span class="pun">(</span><span class="str">"running %s"</span><span class="pln"> </span><span class="pun">%</span><span class="pln"> </span><span class="str">' '</span><span class="pun">.</span><span class="pln">join</span><span class="pun">(</span><span class="pln">sys</span><span class="pun">.</span><span class="pln">argv</span><span class="pun">))</span></code></li><li class="L0"><code class="language-python"></code></li><li class="L1"><code class="language-python"><span class="pln">    </span><span class="com"># check and process input arguments</span></code></li><li class="L2"><code class="language-python"><span class="pln">    </span><span class="kwd">if</span><span class="pln"> len</span><span class="pun">(</span><span class="pln">sys</span><span class="pun">.</span><span class="pln">argv</span><span class="pun">)</span><span class="pln"> </span><span class="pun">&lt;</span><span class="pln"> </span><span class="lit">4</span><span class="pun">:</span></code></li><li class="L3"><code class="language-python"><span class="pln">        </span><span class="kwd">print</span><span class="pln"> globals</span><span class="pun">()[</span><span class="str">'__doc__'</span><span class="pun">]</span><span class="pln"> </span><span class="pun">%</span><span class="pln"> locals</span><span class="pun">()</span></code></li><li class="L4"><code class="language-python"><span class="pln">        sys</span><span class="pun">.</span><span class="pln">exit</span><span class="pun">(</span><span class="lit">1</span><span class="pun">)</span></code></li><li class="L5"><code class="language-python"><span class="pln">    inp</span><span class="pun">,</span><span class="pln"> outp1</span><span class="pun">,</span><span class="pln"> outp2 </span><span class="pun">=</span><span class="pln"> sys</span><span class="pun">.</span><span class="pln">argv</span><span class="pun">[</span><span class="lit">1</span><span class="pun">:</span><span class="lit">4</span><span class="pun">]</span></code></li><li class="L6"><code class="language-python"></code></li><li class="L7"><code class="language-python"><span class="pln">    model </span><span class="pun">=</span><span class="pln"> </span><span class="typ">Word2Vec</span><span class="pun">(</span><span class="typ">LineSentence</span><span class="pun">(</span><span class="pln">inp</span><span class="pun">),</span><span class="pln"> size</span><span class="pun">=</span><span class="lit">400</span><span class="pun">,</span><span class="pln"> window</span><span class="pun">=</span><span class="lit">5</span><span class="pun">,</span><span class="pln"> min_count</span><span class="pun">=</span><span class="lit">5</span><span class="pun">,</span></code></li><li class="L8"><code class="language-python"><span class="pln">            workers</span><span class="pun">=</span><span class="pln">multiprocessing</span><span class="pun">.</span><span class="pln">cpu_count</span><span class="pun">())</span></code></li><li class="L9"><code class="language-python"></code></li><li class="L0"><code class="language-python"><span class="pln">    </span><span class="com"># trim unneeded model memory = use(much) less RAM</span></code></li><li class="L1"><code class="language-python"><span class="pln">    </span><span class="com">#model.init_sims(replace=True)</span></code></li><li class="L2"><code class="language-python"><span class="pln">    model</span><span class="pun">.</span><span class="pln">save</span><span class="pun">(</span><span class="pln">outp1</span><span class="pun">)</span></code></li><li class="L3"><code class="language-python"><span class="pln">    model</span><span class="pun">.</span><span class="pln">save_word2vec_format</span><span class="pun">(</span><span class="pln">outp2</span><span class="pun">,</span><span class="pln"> binary</span><span class="pun">=</span><span class="kwd">False</span><span class="pun">)</span></code></li></ol></pre><p data-anchor-id="933i">运行信息</p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="dnor"><ol class="linenums"><li class="L0"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">12</span><span class="pln"> </span><span class="lit">09</span><span class="pun">:</span><span class="lit">50</span><span class="pun">:</span><span class="lit">02</span><span class="pun">,</span><span class="lit">586</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> running python train_word2vec_model</span><span class="pun">.</span><span class="pln">py wiki</span><span class="pun">.</span><span class="pln">zh</span><span class="pun">.</span><span class="pln">text</span><span class="pun">.</span><span class="pln">seg wiki</span><span class="pun">.</span><span class="pln">zh</span><span class="pun">.</span><span class="pln">text</span><span class="pun">.</span><span class="pln">model wiki</span><span class="pun">.</span><span class="pln">zh</span><span class="pun">.</span><span class="pln">text</span><span class="pun">.</span><span class="pln">vector</span></code></li><li class="L1"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">12</span><span class="pln"> </span><span class="lit">09</span><span class="pun">:</span><span class="lit">50</span><span class="pun">:</span><span class="lit">02</span><span class="pun">,</span><span class="lit">592</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> collecting all words </span><span class="kwd">and</span><span class="pln"> their counts</span></code></li><li class="L2"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">12</span><span class="pln"> </span><span class="lit">09</span><span class="pun">:</span><span class="lit">50</span><span class="pun">:</span><span class="lit">02</span><span class="pun">,</span><span class="lit">592</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> PROGRESS</span><span class="pun">:</span><span class="pln"> at sentence </span><span class="com">#0, processed 0 words and 0 word types</span></code></li><li class="L3"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">12</span><span class="pln"> </span><span class="lit">09</span><span class="pun">:</span><span class="lit">50</span><span class="pun">:</span><span class="lit">12</span><span class="pun">,</span><span class="lit">476</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> PROGRESS</span><span class="pun">:</span><span class="pln"> at sentence </span><span class="com">#10000, processed 12914562 words and 254662 word types</span></code></li><li class="L4"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">12</span><span class="pln"> </span><span class="lit">09</span><span class="pun">:</span><span class="lit">50</span><span class="pun">:</span><span class="lit">20</span><span class="pun">,</span><span class="lit">215</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> PROGRESS</span><span class="pun">:</span><span class="pln"> at sentence </span><span class="com">#20000, processed 22308801 words and 373573 word types</span></code></li><li class="L5"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">12</span><span class="pln"> </span><span class="lit">09</span><span class="pun">:</span><span class="lit">50</span><span class="pun">:</span><span class="lit">28</span><span class="pun">,</span><span class="lit">448</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> PROGRESS</span><span class="pun">:</span><span class="pln"> at sentence </span><span class="com">#30000, processed 30724902 words and 460837 word types</span></code></li><li class="L6"><code><span class="pun">...</span></code></li><li class="L7"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">12</span><span class="pln"> </span><span class="lit">09</span><span class="pun">:</span><span class="lit">52</span><span class="pun">:</span><span class="lit">03</span><span class="pun">,</span><span class="lit">498</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> PROGRESS</span><span class="pun">:</span><span class="pln"> at sentence </span><span class="com">#210000, processed 143804601 words and 1483608 word types</span></code></li><li class="L8"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">12</span><span class="pln"> </span><span class="lit">09</span><span class="pun">:</span><span class="lit">52</span><span class="pun">:</span><span class="lit">07</span><span class="pun">,</span><span class="lit">772</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> PROGRESS</span><span class="pun">:</span><span class="pln"> at sentence </span><span class="com">#220000, processed 149352283 words and 1521199 word types</span></code></li><li class="L9"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">12</span><span class="pln"> </span><span class="lit">09</span><span class="pun">:</span><span class="lit">52</span><span class="pun">:</span><span class="lit">11</span><span class="pun">,</span><span class="lit">639</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> PROGRESS</span><span class="pun">:</span><span class="pln"> at sentence </span><span class="com">#230000, processed 154741839 words and 1563584 word types</span></code></li><li class="L0"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">12</span><span class="pln"> </span><span class="lit">09</span><span class="pun">:</span><span class="lit">52</span><span class="pun">:</span><span class="lit">12</span><span class="pun">,</span><span class="lit">746</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> collected </span><span class="lit">1575172</span><span class="pln"> word types </span><span class="kwd">from</span><span class="pln"> a corpus of </span><span class="lit">156430908</span><span class="pln"> words </span><span class="kwd">and</span><span class="pln"> </span><span class="lit">232894</span><span class="pln"> sentences</span></code></li><li class="L1"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">12</span><span class="pln"> </span><span class="lit">09</span><span class="pun">:</span><span class="lit">52</span><span class="pun">:</span><span class="lit">13</span><span class="pun">,</span><span class="lit">672</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> total </span><span class="lit">278291</span><span class="pln"> word types after removing those </span><span class="kwd">with</span><span class="pln"> count</span><span class="pun">&lt;</span><span class="lit">5</span></code></li><li class="L2"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">12</span><span class="pln"> </span><span class="lit">09</span><span class="pun">:</span><span class="lit">52</span><span class="pun">:</span><span class="lit">13</span><span class="pun">,</span><span class="lit">673</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> constructing a huffman tree </span><span class="kwd">from</span><span class="pln"> </span><span class="lit">278291</span><span class="pln"> words</span></code></li><li class="L3"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">12</span><span class="pln"> </span><span class="lit">09</span><span class="pun">:</span><span class="lit">52</span><span class="pun">:</span><span class="lit">29</span><span class="pun">,</span><span class="lit">323</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> built huffman tree </span><span class="kwd">with</span><span class="pln"> maximum node depth </span><span class="lit">25</span></code></li><li class="L4"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">12</span><span class="pln"> </span><span class="lit">09</span><span class="pun">:</span><span class="lit">52</span><span class="pun">:</span><span class="lit">29</span><span class="pun">,</span><span class="lit">683</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> resetting layer weights</span></code></li><li class="L5"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">12</span><span class="pln"> </span><span class="lit">09</span><span class="pun">:</span><span class="lit">52</span><span class="pun">:</span><span class="lit">38</span><span class="pun">,</span><span class="lit">805</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> training model </span><span class="kwd">with</span><span class="pln"> </span><span class="lit">4</span><span class="pln"> workers on </span><span class="lit">278291</span><span class="pln"> vocabulary </span><span class="kwd">and</span><span class="pln"> </span><span class="lit">400</span><span class="pln"> features</span><span class="pun">,</span><span class="pln"> </span><span class="kwd">using</span><span class="pln"> </span><span class="str">'skipgram'</span><span class="pun">=</span><span class="lit">1</span><span class="pln"> </span><span class="str">'hierarchical softmax'</span><span class="pun">=</span><span class="lit">1</span><span class="pln"> </span><span class="str">'subsample'</span><span class="pun">=</span><span class="lit">0</span><span class="pln"> </span><span class="kwd">and</span><span class="pln"> </span><span class="str">'negative sampling'</span><span class="pun">=</span><span class="lit">0</span></code></li><li class="L6"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">12</span><span class="pln"> </span><span class="lit">09</span><span class="pun">:</span><span class="lit">52</span><span class="pun">:</span><span class="lit">49</span><span class="pun">,</span><span class="lit">504</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> PROGRESS</span><span class="pun">:</span><span class="pln"> at </span><span class="lit">0.10</span><span class="pun">%</span><span class="pln"> words</span><span class="pun">,</span><span class="pln"> alpha </span><span class="lit">0.02500</span><span class="pun">,</span><span class="pln"> </span><span class="lit">15008</span><span class="pln"> words</span><span class="pun">/</span><span class="pln">s</span></code></li><li class="L7"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">12</span><span class="pln"> </span><span class="lit">09</span><span class="pun">:</span><span class="lit">52</span><span class="pun">:</span><span class="lit">51</span><span class="pun">,</span><span class="lit">935</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> PROGRESS</span><span class="pun">:</span><span class="pln"> at </span><span class="lit">0.38</span><span class="pun">%</span><span class="pln"> words</span><span class="pun">,</span><span class="pln"> alpha </span><span class="lit">0.02500</span><span class="pun">,</span><span class="pln"> </span><span class="lit">44434</span><span class="pln"> words</span><span class="pun">/</span><span class="pln">s</span></code></li><li class="L8"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">12</span><span class="pln"> </span><span class="lit">09</span><span class="pun">:</span><span class="lit">52</span><span class="pun">:</span><span class="lit">54</span><span class="pun">,</span><span class="lit">779</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> PROGRESS</span><span class="pun">:</span><span class="pln"> at </span><span class="lit">0.56</span><span class="pun">%</span><span class="pln"> words</span><span class="pun">,</span><span class="pln"> alpha </span><span class="lit">0.02500</span><span class="pun">,</span><span class="pln"> </span><span class="lit">53965</span><span class="pln"> words</span><span class="pun">/</span><span class="pln">s</span></code></li><li class="L9"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">12</span><span class="pln"> </span><span class="lit">09</span><span class="pun">:</span><span class="lit">52</span><span class="pun">:</span><span class="lit">57</span><span class="pun">,</span><span class="lit">240</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> PROGRESS</span><span class="pun">:</span><span class="pln"> at </span><span class="lit">0.62</span><span class="pun">%</span><span class="pln"> words</span><span class="pun">,</span><span class="pln"> alpha </span><span class="lit">0.02491</span><span class="pun">,</span><span class="pln"> </span><span class="lit">52116</span><span class="pln"> words</span><span class="pun">/</span><span class="pln">s</span></code></li><li class="L0"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">12</span><span class="pln"> </span><span class="lit">09</span><span class="pun">:</span><span class="lit">52</span><span class="pun">:</span><span class="lit">58</span><span class="pun">,</span><span class="lit">823</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> PROGRESS</span><span class="pun">:</span><span class="pln"> at </span><span class="lit">0.72</span><span class="pun">%</span><span class="pln"> words</span><span class="pun">,</span><span class="pln"> alpha </span><span class="lit">0.02494</span><span class="pun">,</span><span class="pln"> </span><span class="lit">55804</span><span class="pln"> words</span><span class="pun">/</span><span class="pln">s</span></code></li><li class="L1"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">12</span><span class="pln"> </span><span class="lit">09</span><span class="pun">:</span><span class="lit">53</span><span class="pun">:</span><span class="lit">03</span><span class="pun">,</span><span class="lit">649</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> PROGRESS</span><span class="pun">:</span><span class="pln"> at </span><span class="lit">0.94</span><span class="pun">%</span><span class="pln"> words</span><span class="pun">,</span><span class="pln"> alpha </span><span class="lit">0.02486</span><span class="pun">,</span><span class="pln"> </span><span class="lit">58277</span><span class="pln"> words</span><span class="pun">/</span><span class="pln">s</span></code></li><li class="L2"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">12</span><span class="pln"> </span><span class="lit">09</span><span class="pun">:</span><span class="lit">53</span><span class="pun">:</span><span class="lit">07</span><span class="pun">,</span><span class="lit">357</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> PROGRESS</span><span class="pun">:</span><span class="pln"> at </span><span class="lit">1.03</span><span class="pun">%</span><span class="pln"> words</span><span class="pun">,</span><span class="pln"> alpha </span><span class="lit">0.02479</span><span class="pun">,</span><span class="pln"> </span><span class="lit">56036</span><span class="pln"> words</span><span class="pun">/</span><span class="pln">s</span></code></li><li class="L3"><code><span class="pun">......</span></code></li><li class="L4"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">12</span><span class="pln"> </span><span class="lit">19</span><span class="pun">:</span><span class="lit">22</span><span class="pun">:</span><span class="lit">09</span><span class="pun">,</span><span class="lit">002</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> PROGRESS</span><span class="pun">:</span><span class="pln"> at </span><span class="lit">98.38</span><span class="pun">%</span><span class="pln"> words</span><span class="pun">,</span><span class="pln"> alpha </span><span class="lit">0.00044</span><span class="pun">,</span><span class="pln"> </span><span class="lit">85936</span><span class="pln"> words</span><span class="pun">/</span><span class="pln">s</span></code></li><li class="L5"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">12</span><span class="pln"> </span><span class="lit">19</span><span class="pun">:</span><span class="lit">22</span><span class="pun">:</span><span class="lit">10</span><span class="pun">,</span><span class="lit">321</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> PROGRESS</span><span class="pun">:</span><span class="pln"> at </span><span class="lit">98.50</span><span class="pun">%</span><span class="pln"> words</span><span class="pun">,</span><span class="pln"> alpha </span><span class="lit">0.00044</span><span class="pun">,</span><span class="pln"> </span><span class="lit">85971</span><span class="pln"> words</span><span class="pun">/</span><span class="pln">s</span></code></li><li class="L6"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">12</span><span class="pln"> </span><span class="lit">19</span><span class="pun">:</span><span class="lit">22</span><span class="pun">:</span><span class="lit">11</span><span class="pun">,</span><span class="lit">934</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> PROGRESS</span><span class="pun">:</span><span class="pln"> at </span><span class="lit">98.55</span><span class="pun">%</span><span class="pln"> words</span><span class="pun">,</span><span class="pln"> alpha </span><span class="lit">0.00039</span><span class="pun">,</span><span class="pln"> </span><span class="lit">85940</span><span class="pln"> words</span><span class="pun">/</span><span class="pln">s</span></code></li><li class="L7"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">12</span><span class="pln"> </span><span class="lit">19</span><span class="pun">:</span><span class="lit">22</span><span class="pun">:</span><span class="lit">13</span><span class="pun">,</span><span class="lit">384</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> PROGRESS</span><span class="pun">:</span><span class="pln"> at </span><span class="lit">98.65</span><span class="pun">%</span><span class="pln"> words</span><span class="pun">,</span><span class="pln"> alpha </span><span class="lit">0.00036</span><span class="pun">,</span><span class="pln"> </span><span class="lit">85960</span><span class="pln"> words</span><span class="pun">/</span><span class="pln">s</span></code></li><li class="L8"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">12</span><span class="pln"> </span><span class="lit">19</span><span class="pun">:</span><span class="lit">22</span><span class="pun">:</span><span class="lit">13</span><span class="pun">,</span><span class="lit">883</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> training on </span><span class="lit">152625573</span><span class="pln"> words took </span><span class="lit">1775.1s</span><span class="pun">,</span><span class="pln"> </span><span class="lit">85982</span><span class="pln"> words</span><span class="pun">/</span><span class="pln">s</span></code></li><li class="L9"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">12</span><span class="pln"> </span><span class="lit">19</span><span class="pun">:</span><span class="lit">22</span><span class="pun">:</span><span class="lit">13</span><span class="pun">,</span><span class="lit">883</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> saving </span><span class="typ">Word2Vec</span><span class="pln"> </span><span class="kwd">object</span><span class="pln"> under wiki</span><span class="pun">.</span><span class="pln">zh</span><span class="pun">.</span><span class="pln">text</span><span class="pun">.</span><span class="pln">model</span><span class="pun">,</span><span class="pln"> separately </span><span class="kwd">None</span></code></li><li class="L0"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">12</span><span class="pln"> </span><span class="lit">19</span><span class="pun">:</span><span class="lit">22</span><span class="pun">:</span><span class="lit">13</span><span class="pun">,</span><span class="lit">884</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">not</span><span class="pln"> storing attribute syn0norm</span></code></li><li class="L1"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">12</span><span class="pln"> </span><span class="lit">19</span><span class="pun">:</span><span class="lit">22</span><span class="pun">:</span><span class="lit">13</span><span class="pun">,</span><span class="lit">884</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> storing numpy array </span><span class="str">'syn0'</span><span class="pln"> to wiki</span><span class="pun">.</span><span class="pln">zh</span><span class="pun">.</span><span class="pln">text</span><span class="pun">.</span><span class="pln">model</span><span class="pun">.</span><span class="pln">syn0</span><span class="pun">.</span><span class="pln">npy</span></code></li><li class="L2"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">12</span><span class="pln"> </span><span class="lit">19</span><span class="pun">:</span><span class="lit">22</span><span class="pun">:</span><span class="lit">20</span><span class="pun">,</span><span class="lit">797</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> storing numpy array </span><span class="str">'syn1'</span><span class="pln"> to wiki</span><span class="pun">.</span><span class="pln">zh</span><span class="pun">.</span><span class="pln">text</span><span class="pun">.</span><span class="pln">model</span><span class="pun">.</span><span class="pln">syn1</span><span class="pun">.</span><span class="pln">npy</span></code></li><li class="L3"><code><span class="lit">2016</span><span class="pun">-</span><span class="lit">08</span><span class="pun">-</span><span class="lit">12</span><span class="pln"> </span><span class="lit">19</span><span class="pun">:</span><span class="lit">22</span><span class="pun">:</span><span class="lit">40</span><span class="pun">,</span><span class="lit">667</span><span class="pun">:</span><span class="pln"> INFO</span><span class="pun">:</span><span class="pln"> storing </span><span class="lit">278291x400</span><span class="pln"> projection weights </span><span class="kwd">into</span><span class="pln"> wiki</span><span class="pun">.</span><span class="pln">zh</span><span class="pun">.</span><span class="pln">text</span><span class="pun">.</span><span class="pln">vector</span></code></li></ol></pre><p data-anchor-id="0wcs">测试模型效果：</p><div class="md-section-divider"></div><pre class="prettyprint linenums prettyprinted" data-anchor-id="n6dk"><ol class="linenums"><li class="L0"><code><span class="typ">In</span><span class="pln"> </span><span class="pun">[</span><span class="lit">1</span><span class="pun">]:</span><span class="pln"> </span><span class="kwd">import</span><span class="pln"> gensim</span></code></li><li class="L1"><code></code></li><li class="L2"><code><span class="typ">In</span><span class="pln"> </span><span class="pun">[</span><span class="lit">2</span><span class="pun">]:</span><span class="pln"> model </span><span class="pun">=</span><span class="pln"> gensim</span><span class="pun">.</span><span class="pln">models</span><span class="pun">.</span><span class="typ">Word2Vec</span><span class="pun">.</span><span class="pln">load</span><span class="pun">(</span><span class="str">"wiki.zh.text.model"</span><span class="pun">)</span></code></li><li class="L3"><code></code></li><li class="L4"><code><span class="typ">In</span><span class="pln"> </span><span class="pun">[</span><span class="lit">3</span><span class="pun">]:</span><span class="pln"> model</span><span class="pun">.</span><span class="pln">most_similar</span><span class="pun">(</span><span class="pln">u</span><span class="str">"足球"</span><span class="pun">)</span></code></li><li class="L5"><code><span class="typ">Out</span><span class="pun">[</span><span class="lit">3</span><span class="pun">]:</span><span class="pln"> </span></code></li><li class="L6"><code><span class="pun">[(</span><span class="pln">u</span><span class="str">'\u8054\u8d5b'</span><span class="pun">,</span><span class="pln"> </span><span class="lit">0.6553816199302673</span><span class="pun">),</span></code></li><li class="L7"><code><span class="pln"> </span><span class="pun">(</span><span class="pln">u</span><span class="str">'\u7532\u7ea7'</span><span class="pun">,</span><span class="pln"> </span><span class="lit">0.6530429720878601</span><span class="pun">),</span></code></li><li class="L8"><code><span class="pln"> </span><span class="pun">(</span><span class="pln">u</span><span class="str">'\u7bee\u7403'</span><span class="pun">,</span><span class="pln"> </span><span class="lit">0.5967546701431274</span><span class="pun">),</span></code></li><li class="L9"><code><span class="pln"> </span><span class="pun">(</span><span class="pln">u</span><span class="str">'\u4ff1\u4e50\u90e8'</span><span class="pun">,</span><span class="pln"> </span><span class="lit">0.5872289538383484</span><span class="pun">),</span></code></li><li class="L0"><code><span class="pln"> </span><span class="pun">(</span><span class="pln">u</span><span class="str">'\u4e59\u7ea7'</span><span class="pun">,</span><span class="pln"> </span><span class="lit">0.5840631723403931</span><span class="pun">),</span></code></li><li class="L1"><code><span class="pln"> </span><span class="pun">(</span><span class="pln">u</span><span class="str">'\u8db3\u7403\u961f'</span><span class="pun">,</span><span class="pln"> </span><span class="lit">0.5560152530670166</span><span class="pun">),</span></code></li><li class="L2"><code><span class="pln"> </span><span class="pun">(</span><span class="pln">u</span><span class="str">'\u4e9a\u8db3\u8054'</span><span class="pun">,</span><span class="pln"> </span><span class="lit">0.5308005809783936</span><span class="pun">),</span></code></li><li class="L3"><code><span class="pln"> </span><span class="pun">(</span><span class="pln">u</span><span class="str">'allsvenskan'</span><span class="pun">,</span><span class="pln"> </span><span class="lit">0.5249762535095215</span><span class="pun">),</span></code></li><li class="L4"><code><span class="pln"> </span><span class="pun">(</span><span class="pln">u</span><span class="str">'\u4ee3\u8868\u961f'</span><span class="pun">,</span><span class="pln"> </span><span class="lit">0.5214947462081909</span><span class="pun">),</span></code></li><li class="L5"><code><span class="pln"> </span><span class="pun">(</span><span class="pln">u</span><span class="str">'\u7532\u7ec4'</span><span class="pun">,</span><span class="pln"> </span><span class="lit">0.5177896022796631</span><span class="pun">)]</span></code></li><li class="L6"><code></code></li><li class="L7"><code><span class="typ">In</span><span class="pln"> </span><span class="pun">[</span><span class="lit">4</span><span class="pun">]:</span><span class="pln"> result </span><span class="pun">=</span><span class="pln"> model</span><span class="pun">.</span><span class="pln">most_similar</span><span class="pun">(</span><span class="pln">u</span><span class="str">"足球"</span><span class="pun">)</span></code></li><li class="L8"><code></code></li><li class="L9"><code><span class="typ">In</span><span class="pln"> </span><span class="pun">[</span><span class="lit">5</span><span class="pun">]:</span><span class="pln"> </span><span class="kwd">for</span><span class="pln"> e </span><span class="kwd">in</span><span class="pln"> result</span><span class="pun">:</span></code></li><li class="L0"><code><span class="pln">    </span><span class="kwd">print</span><span class="pln"> e</span><span class="pun">[</span><span class="lit">0</span><span class="pun">],</span><span class="pln"> e</span><span class="pun">[</span><span class="lit">1</span><span class="pun">]</span></code></li><li class="L1"><code><span class="pln">   </span><span class="pun">....:</span><span class="pln">     </span></code></li><li class="L2"><code><span class="pun">联赛</span><span class="pln"> </span><span class="lit">0.65538161993</span></code></li><li class="L3"><code><span class="pun">甲级</span><span class="pln"> </span><span class="lit">0.653042972088</span></code></li><li class="L4"><code><span class="pun">篮球</span><span class="pln"> </span><span class="lit">0.596754670143</span></code></li><li class="L5"><code><span class="pun">俱乐部</span><span class="pln"> </span><span class="lit">0.587228953838</span></code></li><li class="L6"><code><span class="pun">乙级</span><span class="pln"> </span><span class="lit">0.58406317234</span></code></li><li class="L7"><code><span class="pun">足球队</span><span class="pln"> </span><span class="lit">0.556015253067</span></code></li><li class="L8"><code><span class="pun">亚足联</span><span class="pln"> </span><span class="lit">0.530800580978</span></code></li><li class="L9"><code><span class="pln">allsvenskan </span><span class="lit">0.52497625351</span></code></li><li class="L0"><code><span class="pun">代表队</span><span class="pln"> </span><span class="lit">0.521494746208</span></code></li><li class="L1"><code><span class="pun">甲组</span><span class="pln"> </span><span class="lit">0.51778960228</span></code></li><li class="L2"><code></code></li><li class="L3"><code><span class="typ">In</span><span class="pln"> </span><span class="pun">[</span><span class="lit">6</span><span class="pun">]:</span><span class="pln"> result </span><span class="pun">=</span><span class="pln"> model</span><span class="pun">.</span><span class="pln">most_similar</span><span class="pun">(</span><span class="pln">u</span><span class="str">"男人"</span><span class="pun">)</span></code></li><li class="L4"><code></code></li><li class="L5"><code><span class="typ">In</span><span class="pln"> </span><span class="pun">[</span><span class="lit">7</span><span class="pun">]:</span><span class="pln"> </span><span class="kwd">for</span><span class="pln"> e </span><span class="kwd">in</span><span class="pln"> result</span><span class="pun">:</span></code></li><li class="L6"><code><span class="pln">    </span><span class="kwd">print</span><span class="pln"> e</span><span class="pun">[</span><span class="lit">0</span><span class="pun">],</span><span class="pln"> e</span><span class="pun">[</span><span class="lit">1</span><span class="pun">]</span></code></li><li class="L7"><code><span class="pln">   </span><span class="pun">....:</span><span class="pln">     </span></code></li><li class="L8"><code><span class="pun">女人</span><span class="pln"> </span><span class="lit">0.77537125349</span></code></li><li class="L9"><code><span class="pun">家伙</span><span class="pln"> </span><span class="lit">0.617369174957</span></code></li><li class="L0"><code><span class="pun">妈妈</span><span class="pln"> </span><span class="lit">0.567102909088</span></code></li><li class="L1"><code><span class="pun">漂亮</span><span class="pln"> </span><span class="lit">0.560832381248</span></code></li><li class="L2"><code><span class="pun">잘했어</span><span class="pln"> </span><span class="lit">0.540875017643</span></code></li><li class="L3"><code><span class="pun">谎言</span><span class="pln"> </span><span class="lit">0.538448691368</span></code></li><li class="L4"><code><span class="pun">爸爸</span><span class="pln"> </span><span class="lit">0.53660941124</span></code></li><li class="L5"><code><span class="pun">傻瓜</span><span class="pln"> </span><span class="lit">0.535608053207</span></code></li><li class="L6"><code><span class="pun">예쁘다</span><span class="pln"> </span><span class="lit">0.535151124001</span></code></li><li class="L7"><code><span class="pln">mc</span><span class="pun">刘</span><span class="pln"> </span><span class="lit">0.529670000076</span></code></li><li class="L8"><code></code></li><li class="L9"><code><span class="typ">In</span><span class="pln"> </span><span class="pun">[</span><span class="lit">8</span><span class="pun">]:</span><span class="pln"> result </span><span class="pun">=</span><span class="pln"> model</span><span class="pun">.</span><span class="pln">most_similar</span><span class="pun">(</span><span class="pln">u</span><span class="str">"女人"</span><span class="pun">)</span></code></li><li class="L0"><code></code></li><li class="L1"><code><span class="typ">In</span><span class="pln"> </span><span class="pun">[</span><span class="lit">9</span><span class="pun">]:</span><span class="pln"> </span><span class="kwd">for</span><span class="pln"> e </span><span class="kwd">in</span><span class="pln"> result</span><span class="pun">:</span></code></li><li class="L2"><code><span class="pln">    </span><span class="kwd">print</span><span class="pln"> e</span><span class="pun">[</span><span class="lit">0</span><span class="pun">],</span><span class="pln"> e</span><span class="pun">[</span><span class="lit">1</span><span class="pun">]</span></code></li><li class="L3"><code><span class="pln">   </span><span class="pun">....:</span><span class="pln">     </span></code></li><li class="L4"><code><span class="pun">男人</span><span class="pln"> </span><span class="lit">0.77537125349</span></code></li><li class="L5"><code><span class="pun">我的某</span><span class="pln"> </span><span class="lit">0.589010596275</span></code></li><li class="L6"><code><span class="pun">妈妈</span><span class="pln"> </span><span class="lit">0.576344847679</span></code></li><li class="L7"><code><span class="pun">잘했어</span><span class="pln"> </span><span class="lit">0.562340974808</span></code></li><li class="L8"><code><span class="pun">美丽</span><span class="pln"> </span><span class="lit">0.555426716805</span></code></li><li class="L9"><code><span class="pun">爸爸</span><span class="pln"> </span><span class="lit">0.543958246708</span></code></li><li class="L0"><code><span class="pun">新娘</span><span class="pln"> </span><span class="lit">0.543640494347</span></code></li><li class="L1"><code><span class="pun">谎言</span><span class="pln"> </span><span class="lit">0.540272831917</span></code></li><li class="L2"><code><span class="pun">妞儿</span><span class="pln"> </span><span class="lit">0.531066179276</span></code></li><li class="L3"><code><span class="pun">老婆</span><span class="pln"> </span><span class="lit">0.528521537781</span></code></li><li class="L4"><code></code></li><li class="L5"><code><span class="typ">In</span><span class="pln"> </span><span class="pun">[</span><span class="lit">10</span><span class="pun">]:</span><span class="pln"> result </span><span class="pun">=</span><span class="pln"> model</span><span class="pun">.</span><span class="pln">most_similar</span><span class="pun">(</span><span class="pln">u</span><span class="str">"青蛙"</span><span class="pun">)</span></code></li><li class="L6"><code></code></li><li class="L7"><code><span class="typ">In</span><span class="pln"> </span><span class="pun">[</span><span class="lit">11</span><span class="pun">]:</span><span class="pln"> </span><span class="kwd">for</span><span class="pln"> e </span><span class="kwd">in</span><span class="pln"> result</span><span class="pun">:</span></code></li><li class="L8"><code><span class="pln">    </span><span class="kwd">print</span><span class="pln"> e</span><span class="pun">[</span><span class="lit">0</span><span class="pun">],</span><span class="pln"> e</span><span class="pun">[</span><span class="lit">1</span><span class="pun">]</span></code></li><li class="L9"><code><span class="pln">   </span><span class="pun">....:</span><span class="pln">     </span></code></li><li class="L0"><code><span class="pun">老鼠</span><span class="pln"> </span><span class="lit">0.559612870216</span></code></li><li class="L1"><code><span class="pun">乌龟</span><span class="pln"> </span><span class="lit">0.489831030369</span></code></li><li class="L2"><code><span class="pun">蜥蜴</span><span class="pln"> </span><span class="lit">0.478990525007</span></code></li><li class="L3"><code><span class="pun">猫</span><span class="pln"> </span><span class="lit">0.46728849411</span></code></li><li class="L4"><code><span class="pun">鳄鱼</span><span class="pln"> </span><span class="lit">0.461885392666</span></code></li><li class="L5"><code><span class="pun">蟾蜍</span><span class="pln"> </span><span class="lit">0.448014199734</span></code></li><li class="L6"><code><span class="pun">猴子</span><span class="pln"> </span><span class="lit">0.436584025621</span></code></li><li class="L7"><code><span class="pun">白雪公主</span><span class="pln"> </span><span class="lit">0.434905380011</span></code></li><li class="L8"><code><span class="pun">蚯蚓</span><span class="pln"> </span><span class="lit">0.433413207531</span></code></li><li class="L9"><code><span class="pun">螃蟹</span><span class="pln"> </span><span class="lit">0.4314712286</span></code></li><li class="L0"><code></code></li><li class="L1"><code><span class="typ">In</span><span class="pln"> </span><span class="pun">[</span><span class="lit">12</span><span class="pun">]:</span><span class="pln"> result </span><span class="pun">=</span><span class="pln"> model</span><span class="pun">.</span><span class="pln">most_similar</span><span class="pun">(</span><span class="pln">u</span><span class="str">"姨夫"</span><span class="pun">)</span></code></li><li class="L2"><code></code></li><li class="L3"><code><span class="typ">In</span><span class="pln"> </span><span class="pun">[</span><span class="lit">13</span><span class="pun">]:</span><span class="pln"> </span><span class="kwd">for</span><span class="pln"> e </span><span class="kwd">in</span><span class="pln"> result</span><span class="pun">:</span></code></li><li class="L4"><code><span class="pln">    </span><span class="kwd">print</span><span class="pln"> e</span><span class="pun">[</span><span class="lit">0</span><span class="pun">],</span><span class="pln"> e</span><span class="pun">[</span><span class="lit">1</span><span class="pun">]</span></code></li><li class="L5"><code><span class="pln">   </span><span class="pun">....:</span><span class="pln">     </span></code></li><li class="L6"><code><span class="pun">堂伯</span><span class="pln"> </span><span class="lit">0.583935439587</span></code></li><li class="L7"><code><span class="pun">祖父</span><span class="pln"> </span><span class="lit">0.574735701084</span></code></li><li class="L8"><code><span class="pun">妃所生</span><span class="pln"> </span><span class="lit">0.569327116013</span></code></li><li class="L9"><code><span class="pun">内弟</span><span class="pln"> </span><span class="lit">0.562012672424</span></code></li><li class="L0"><code><span class="pun">早卒</span><span class="pln"> </span><span class="lit">0.558042645454</span></code></li><li class="L1"><code><span class="pun">曕</span><span class="pln"> </span><span class="lit">0.553856015205</span></code></li><li class="L2"><code><span class="pun">胤祯</span><span class="pln"> </span><span class="lit">0.553288519382</span></code></li><li class="L3"><code><span class="pun">陈潜</span><span class="pln"> </span><span class="lit">0.550716996193</span></code></li><li class="L4"><code><span class="pun">愔之</span><span class="pln"> </span><span class="lit">0.550510883331</span></code></li><li class="L5"><code><span class="pun">叔父</span><span class="pln"> </span><span class="lit">0.550032019615</span></code></li><li class="L6"><code></code></li><li class="L7"><code><span class="typ">In</span><span class="pln"> </span><span class="pun">[</span><span class="lit">14</span><span class="pun">]:</span><span class="pln"> result </span><span class="pun">=</span><span class="pln"> model</span><span class="pun">.</span><span class="pln">most_similar</span><span class="pun">(</span><span class="pln">u</span><span class="str">"衣服"</span><span class="pun">)</span></code></li><li class="L8"><code></code></li><li class="L9"><code><span class="typ">In</span><span class="pln"> </span><span class="pun">[</span><span class="lit">15</span><span class="pun">]:</span><span class="pln"> </span><span class="kwd">for</span><span class="pln"> e </span><span class="kwd">in</span><span class="pln"> result</span><span class="pun">:</span></code></li><li class="L0"><code><span class="pln">    </span><span class="kwd">print</span><span class="pln"> e</span><span class="pun">[</span><span class="lit">0</span><span class="pun">],</span><span class="pln"> e</span><span class="pun">[</span><span class="lit">1</span><span class="pun">]</span></code></li><li class="L1"><code><span class="pln">   </span><span class="pun">....:</span><span class="pln">     </span></code></li><li class="L2"><code><span class="pun">鞋子</span><span class="pln"> </span><span class="lit">0.686688780785</span></code></li><li class="L3"><code><span class="pun">穿着</span><span class="pln"> </span><span class="lit">0.672499775887</span></code></li><li class="L4"><code><span class="pun">衣物</span><span class="pln"> </span><span class="lit">0.67173999548</span></code></li><li class="L5"><code><span class="pun">大衣</span><span class="pln"> </span><span class="lit">0.667605519295</span></code></li><li class="L6"><code><span class="pun">裤子</span><span class="pln"> </span><span class="lit">0.662670075893</span></code></li><li class="L7"><code><span class="pun">内裤</span><span class="pln"> </span><span class="lit">0.662210345268</span></code></li><li class="L8"><code><span class="pun">裙子</span><span class="pln"> </span><span class="lit">0.659705817699</span></code></li><li class="L9"><code><span class="pun">西装</span><span class="pln"> </span><span class="lit">0.648508131504</span></code></li><li class="L0"><code><span class="pun">洋装</span><span class="pln"> </span><span class="lit">0.647238850594</span></code></li><li class="L1"><code><span class="pun">围裙</span><span class="pln"> </span><span class="lit">0.642895817757</span></code></li><li class="L2"><code></code></li><li class="L3"><code><span class="typ">In</span><span class="pln"> </span><span class="pun">[</span><span class="lit">16</span><span class="pun">]:</span><span class="pln"> result </span><span class="pun">=</span><span class="pln"> model</span><span class="pun">.</span><span class="pln">most_similar</span><span class="pun">(</span><span class="pln">u</span><span class="str">"公安局"</span><span class="pun">)</span></code></li><li class="L4"><code></code></li><li class="L5"><code><span class="typ">In</span><span class="pln"> </span><span class="pun">[</span><span class="lit">17</span><span class="pun">]:</span><span class="pln"> </span><span class="kwd">for</span><span class="pln"> e </span><span class="kwd">in</span><span class="pln"> result</span><span class="pun">:</span></code></li><li class="L6"><code><span class="pln">    </span><span class="kwd">print</span><span class="pln"> e</span><span class="pun">[</span><span class="lit">0</span><span class="pun">],</span><span class="pln"> e</span><span class="pun">[</span><span class="lit">1</span><span class="pun">]</span></code></li><li class="L7"><code><span class="pln">   </span><span class="pun">....:</span><span class="pln">     </span></code></li><li class="L8"><code><span class="pun">司法局</span><span class="pln"> </span><span class="lit">0.730189085007</span></code></li><li class="L9"><code><span class="pun">公安厅</span><span class="pln"> </span><span class="lit">0.634275555611</span></code></li><li class="L0"><code><span class="pun">公安</span><span class="pln"> </span><span class="lit">0.612798035145</span></code></li><li class="L1"><code><span class="pun">房管局</span><span class="pln"> </span><span class="lit">0.597343325615</span></code></li><li class="L2"><code><span class="pun">商业局</span><span class="pln"> </span><span class="lit">0.597183346748</span></code></li><li class="L3"><code><span class="pun">军管会</span><span class="pln"> </span><span class="lit">0.59476184845</span></code></li><li class="L4"><code><span class="pun">体育局</span><span class="pln"> </span><span class="lit">0.59283208847</span></code></li><li class="L5"><code><span class="pun">财政局</span><span class="pln"> </span><span class="lit">0.588721752167</span></code></li><li class="L6"><code><span class="pun">戒毒所</span><span class="pln"> </span><span class="lit">0.575558543205</span></code></li><li class="L7"><code><span class="pun">新闻办</span><span class="pln"> </span><span class="lit">0.573395550251</span></code></li><li class="L8"><code></code></li><li class="L9"><code><span class="typ">In</span><span class="pln"> </span><span class="pun">[</span><span class="lit">18</span><span class="pun">]:</span><span class="pln"> result </span><span class="pun">=</span><span class="pln"> model</span><span class="pun">.</span><span class="pln">most_similar</span><span class="pun">(</span><span class="pln">u</span><span class="str">"铁道部"</span><span class="pun">)</span></code></li><li class="L0"><code></code></li><li class="L1"><code><span class="typ">In</span><span class="pln"> </span><span class="pun">[</span><span class="lit">19</span><span class="pun">]:</span><span class="pln"> </span><span class="kwd">for</span><span class="pln"> e </span><span class="kwd">in</span><span class="pln"> result</span><span class="pun">:</span></code></li><li class="L2"><code><span class="pln">    </span><span class="kwd">print</span><span class="pln"> e</span><span class="pun">[</span><span class="lit">0</span><span class="pun">],</span><span class="pln"> e</span><span class="pun">[</span><span class="lit">1</span><span class="pun">]</span></code></li><li class="L3"><code><span class="pln">   </span><span class="pun">....:</span><span class="pln">     </span></code></li><li class="L4"><code><span class="pun">盛光祖</span><span class="pln"> </span><span class="lit">0.565509021282</span></code></li><li class="L5"><code><span class="pun">交通部</span><span class="pln"> </span><span class="lit">0.548688530922</span></code></li><li class="L6"><code><span class="pun">批复</span><span class="pln"> </span><span class="lit">0.546967327595</span></code></li><li class="L7"><code><span class="pun">刘志军</span><span class="pln"> </span><span class="lit">0.541010737419</span></code></li><li class="L8"><code><span class="pun">立项</span><span class="pln"> </span><span class="lit">0.517836689949</span></code></li><li class="L9"><code><span class="pun">报送</span><span class="pln"> </span><span class="lit">0.510296344757</span></code></li><li class="L0"><code><span class="pun">计委</span><span class="pln"> </span><span class="lit">0.508456230164</span></code></li><li class="L1"><code><span class="pun">水利部</span><span class="pln"> </span><span class="lit">0.503531932831</span></code></li><li class="L2"><code><span class="pun">国务院</span><span class="pln"> </span><span class="lit">0.503227233887</span></code></li><li class="L3"><code><span class="pun">经贸委</span><span class="pln"> </span><span class="lit">0.50156635046</span></code></li><li class="L4"><code></code></li><li class="L5"><code><span class="typ">In</span><span class="pln"> </span><span class="pun">[</span><span class="lit">20</span><span class="pun">]:</span><span class="pln"> result </span><span class="pun">=</span><span class="pln"> model</span><span class="pun">.</span><span class="pln">most_similar</span><span class="pun">(</span><span class="pln">u</span><span class="str">"清华大学"</span><span class="pun">)</span></code></li><li class="L6"><code></code></li><li class="L7"><code><span class="typ">In</span><span class="pln"> </span><span class="pun">[</span><span class="lit">21</span><span class="pun">]:</span><span class="pln"> </span><span class="kwd">for</span><span class="pln"> e </span><span class="kwd">in</span><span class="pln"> result</span><span class="pun">:</span></code></li><li class="L8"><code><span class="pln">    </span><span class="kwd">print</span><span class="pln"> e</span><span class="pun">[</span><span class="lit">0</span><span class="pun">],</span><span class="pln"> e</span><span class="pun">[</span><span class="lit">1</span><span class="pun">]</span></code></li><li class="L9"><code><span class="pln">   </span><span class="pun">....:</span><span class="pln">     </span></code></li><li class="L0"><code><span class="pun">北京大学</span><span class="pln"> </span><span class="lit">0.763922810555</span></code></li><li class="L1"><code><span class="pun">化学系</span><span class="pln"> </span><span class="lit">0.724210739136</span></code></li><li class="L2"><code><span class="pun">物理系</span><span class="pln"> </span><span class="lit">0.694550514221</span></code></li><li class="L3"><code><span class="pun">数学系</span><span class="pln"> </span><span class="lit">0.684280991554</span></code></li><li class="L4"><code><span class="pun">中山大学</span><span class="pln"> </span><span class="lit">0.677202701569</span></code></li><li class="L5"><code><span class="pun">复旦</span><span class="pln"> </span><span class="lit">0.657914161682</span></code></li><li class="L6"><code><span class="pun">师范大学</span><span class="pln"> </span><span class="lit">0.656435549259</span></code></li><li class="L7"><code><span class="pun">哲学系</span><span class="pln"> </span><span class="lit">0.654701948166</span></code></li><li class="L8"><code><span class="pun">生物系</span><span class="pln"> </span><span class="lit">0.654403865337</span></code></li><li class="L9"><code><span class="pun">中文系</span><span class="pln"> </span><span class="lit">0.653147578239</span></code></li><li class="L0"><code></code></li><li class="L1"><code><span class="typ">In</span><span class="pln"> </span><span class="pun">[</span><span class="lit">22</span><span class="pun">]:</span><span class="pln"> result </span><span class="pun">=</span><span class="pln"> model</span><span class="pun">.</span><span class="pln">most_similar</span><span class="pun">(</span><span class="pln">u</span><span class="str">"卫视"</span><span class="pun">)</span></code></li><li class="L2"><code></code></li><li class="L3"><code><span class="typ">In</span><span class="pln"> </span><span class="pun">[</span><span class="lit">23</span><span class="pun">]:</span><span class="pln"> </span><span class="kwd">for</span><span class="pln"> e </span><span class="kwd">in</span><span class="pln"> result</span><span class="pun">:</span></code></li><li class="L4"><code><span class="pln">    </span><span class="kwd">print</span><span class="pln"> e</span><span class="pun">[</span><span class="lit">0</span><span class="pun">],</span><span class="pln"> e</span><span class="pun">[</span><span class="lit">1</span><span class="pun">]</span></code></li><li class="L5"><code><span class="pln">   </span><span class="pun">....:</span><span class="pln">     </span></code></li><li class="L6"><code><span class="pun">湖南</span><span class="pln"> </span><span class="lit">0.676812887192</span></code></li><li class="L7"><code><span class="pun">中文台</span><span class="pln"> </span><span class="lit">0.626506924629</span></code></li><li class="L8"><code><span class="pun">収蔵</span><span class="pln"> </span><span class="lit">0.621356606483</span></code></li><li class="L9"><code><span class="pun">黄金档</span><span class="pln"> </span><span class="lit">0.582251906395</span></code></li><li class="L0"><code><span class="pln">cctv </span><span class="lit">0.536769032478</span></code></li><li class="L1"><code><span class="pun">安徽</span><span class="pln"> </span><span class="lit">0.536752820015</span></code></li><li class="L2"><code><span class="pun">非同凡响</span><span class="pln"> </span><span class="lit">0.534517168999</span></code></li><li class="L3"><code><span class="pun">唱响</span><span class="pln"> </span><span class="lit">0.533438682556</span></code></li><li class="L4"><code><span class="pun">最强音</span><span class="pln"> </span><span class="lit">0.532605051994</span></code></li><li class="L5"><code><span class="pun">金鹰</span><span class="pln"> </span><span class="lit">0.531676828861</span></code></li><li class="L6"><code></code></li><li class="L7"><code><span class="typ">In</span><span class="pln"> </span><span class="pun">[</span><span class="lit">24</span><span class="pun">]:</span><span class="pln"> result </span><span class="pun">=</span><span class="pln"> model</span><span class="pun">.</span><span class="pln">most_similar</span><span class="pun">(</span><span class="pln">u</span><span class="str">"习近平"</span><span class="pun">)</span></code></li><li class="L8"><code></code></li><li class="L9"><code><span class="typ">In</span><span class="pln"> </span><span class="pun">[</span><span class="lit">25</span><span class="pun">]:</span><span class="pln"> </span><span class="kwd">for</span><span class="pln"> e </span><span class="kwd">in</span><span class="pln"> result</span><span class="pun">:</span></code></li><li class="L0"><code><span class="pln">    </span><span class="kwd">print</span><span class="pln"> e</span><span class="pun">[</span><span class="lit">0</span><span class="pun">],</span><span class="pln"> e</span><span class="pun">[</span><span class="lit">1</span><span class="pun">]</span></code></li><li class="L1"><code><span class="pln">   </span><span class="pun">....:</span><span class="pln">     </span></code></li><li class="L2"><code><span class="pun">胡锦涛</span><span class="pln"> </span><span class="lit">0.809472680092</span></code></li><li class="L3"><code><span class="pun">江泽民</span><span class="pln"> </span><span class="lit">0.754633367062</span></code></li><li class="L4"><code><span class="pun">李克强</span><span class="pln"> </span><span class="lit">0.739740967751</span></code></li><li class="L5"><code><span class="pun">贾庆林</span><span class="pln"> </span><span class="lit">0.737033963203</span></code></li><li class="L6"><code><span class="pun">曾庆红</span><span class="pln"> </span><span class="lit">0.732847094536</span></code></li><li class="L7"><code><span class="pun">吴邦国</span><span class="pln"> </span><span class="lit">0.726941585541</span></code></li><li class="L8"><code><span class="pun">总书记</span><span class="pln"> </span><span class="lit">0.719057679176</span></code></li><li class="L9"><code><span class="pun">李瑞环</span><span class="pln"> </span><span class="lit">0.716384887695</span></code></li><li class="L0"><code><span class="pun">温家宝</span><span class="pln"> </span><span class="lit">0.711952567101</span></code></li><li class="L1"><code><span class="pun">王岐山</span><span class="pln"> </span><span class="lit">0.703570842743</span></code></li><li class="L2"><code></code></li><li class="L3"><code><span class="typ">In</span><span class="pln"> </span><span class="pun">[</span><span class="lit">26</span><span class="pun">]:</span><span class="pln"> result </span><span class="pun">=</span><span class="pln"> model</span><span class="pun">.</span><span class="pln">most_similar</span><span class="pun">(</span><span class="pln">u</span><span class="str">"林丹"</span><span class="pun">)</span></code></li><li class="L4"><code></code></li><li class="L5"><code><span class="typ">In</span><span class="pln"> </span><span class="pun">[</span><span class="lit">27</span><span class="pun">]:</span><span class="pln"> </span><span class="kwd">for</span><span class="pln"> e </span><span class="kwd">in</span><span class="pln"> result</span><span class="pun">:</span></code></li><li class="L6"><code><span class="pln">    </span><span class="kwd">print</span><span class="pln"> e</span><span class="pun">[</span><span class="lit">0</span><span class="pun">],</span><span class="pln"> e</span><span class="pun">[</span><span class="lit">1</span><span class="pun">]</span></code></li><li class="L7"><code><span class="pln">   </span><span class="pun">....:</span><span class="pln">     </span></code></li><li class="L8"><code><span class="pun">黄综翰</span><span class="pln"> </span><span class="lit">0.538035452366</span></code></li><li class="L9"><code><span class="pun">蒋燕皎</span><span class="pln"> </span><span class="lit">0.52646958828</span></code></li><li class="L0"><code><span class="pun">刘鑫</span><span class="pln"> </span><span class="lit">0.522252976894</span></code></li><li class="L1"><code><span class="pun">韩晶娜</span><span class="pln"> </span><span class="lit">0.516120731831</span></code></li><li class="L2"><code><span class="pun">王晓理</span><span class="pln"> </span><span class="lit">0.512289524078</span></code></li><li class="L3"><code><span class="pun">王适</span><span class="pln"> </span><span class="lit">0.508560419083</span></code></li><li class="L4"><code><span class="pun">杨影</span><span class="pln"> </span><span class="lit">0.508159279823</span></code></li><li class="L5"><code><span class="pun">陈跃</span><span class="pln"> </span><span class="lit">0.507353425026</span></code></li><li class="L6"><code><span class="pun">龚智超</span><span class="pln"> </span><span class="lit">0.503159761429</span></code></li><li class="L7"><code><span class="pun">李敬元</span><span class="pln"> </span><span class="lit">0.50262516737</span></code></li><li class="L8"><code></code></li><li class="L9"><code><span class="typ">In</span><span class="pln"> </span><span class="pun">[</span><span class="lit">28</span><span class="pun">]:</span><span class="pln"> result </span><span class="pun">=</span><span class="pln"> model</span><span class="pun">.</span><span class="pln">most_similar</span><span class="pun">(</span><span class="pln">u</span><span class="str">"语言学"</span><span class="pun">)</span></code></li><li class="L0"><code></code></li><li class="L1"><code><span class="typ">In</span><span class="pln"> </span><span class="pun">[</span><span class="lit">29</span><span class="pun">]:</span><span class="pln"> </span><span class="kwd">for</span><span class="pln"> e </span><span class="kwd">in</span><span class="pln"> result</span><span class="pun">:</span></code></li><li class="L2"><code><span class="pln">    </span><span class="kwd">print</span><span class="pln"> e</span><span class="pun">[</span><span class="lit">0</span><span class="pun">],</span><span class="pln"> e</span><span class="pun">[</span><span class="lit">1</span><span class="pun">]</span></code></li><li class="L3"><code><span class="pln">   </span><span class="pun">....:</span><span class="pln">     </span></code></li><li class="L4"><code><span class="pun">社会学</span><span class="pln"> </span><span class="lit">0.632598280907</span></code></li><li class="L5"><code><span class="pun">人类学</span><span class="pln"> </span><span class="lit">0.623406708241</span></code></li><li class="L6"><code><span class="pun">历史学</span><span class="pln"> </span><span class="lit">0.618442356586</span></code></li><li class="L7"><code><span class="pun">比较文学</span><span class="pln"> </span><span class="lit">0.604823827744</span></code></li><li class="L8"><code><span class="pun">心理学</span><span class="pln"> </span><span class="lit">0.600066184998</span></code></li><li class="L9"><code><span class="pun">人文科学</span><span class="pln"> </span><span class="lit">0.577783346176</span></code></li><li class="L0"><code><span class="pun">社会心理学</span><span class="pln"> </span><span class="lit">0.575571238995</span></code></li><li class="L1"><code><span class="pun">政治学</span><span class="pln"> </span><span class="lit">0.574541330338</span></code></li><li class="L2"><code><span class="pun">地理学</span><span class="pln"> </span><span class="lit">0.573896467686</span></code></li><li class="L3"><code><span class="pun">哲学</span><span class="pln"> </span><span class="lit">0.573873817921</span></code></li><li class="L4"><code></code></li><li class="L5"><code><span class="typ">In</span><span class="pln"> </span><span class="pun">[</span><span class="lit">30</span><span class="pun">]:</span><span class="pln"> result </span><span class="pun">=</span><span class="pln"> model</span><span class="pun">.</span><span class="pln">most_similar</span><span class="pun">(</span><span class="pln">u</span><span class="str">"计算机"</span><span class="pun">)</span></code></li><li class="L6"><code></code></li><li class="L7"><code><span class="typ">In</span><span class="pln"> </span><span class="pun">[</span><span class="lit">31</span><span class="pun">]:</span><span class="pln"> </span><span class="kwd">for</span><span class="pln"> e </span><span class="kwd">in</span><span class="pln"> result</span><span class="pun">:</span></code></li><li class="L8"><code><span class="pln">    </span><span class="kwd">print</span><span class="pln"> e</span><span class="pun">[</span><span class="lit">0</span><span class="pun">],</span><span class="pln"> e</span><span class="pun">[</span><span class="lit">1</span><span class="pun">]</span></code></li><li class="L9"><code><span class="pln">   </span><span class="pun">....:</span><span class="pln">     </span></code></li><li class="L0"><code><span class="pun">自动化</span><span class="pln"> </span><span class="lit">0.674171924591</span></code></li><li class="L1"><code><span class="pun">应用</span><span class="pln"> </span><span class="lit">0.614087462425</span></code></li><li class="L2"><code><span class="pun">自动化系</span><span class="pln"> </span><span class="lit">0.611132860184</span></code></li><li class="L3"><code><span class="pun">材料科学</span><span class="pln"> </span><span class="lit">0.607891201973</span></code></li><li class="L4"><code><span class="pun">集成电路</span><span class="pln"> </span><span class="lit">0.600370049477</span></code></li><li class="L5"><code><span class="pun">技术</span><span class="pln"> </span><span class="lit">0.597518980503</span></code></li><li class="L6"><code><span class="pun">电子学</span><span class="pln"> </span><span class="lit">0.591316461563</span></code></li><li class="L7"><code><span class="pun">建模</span><span class="pln"> </span><span class="lit">0.577238917351</span></code></li><li class="L8"><code><span class="pun">工程学</span><span class="pln"> </span><span class="lit">0.572855889797</span></code></li><li class="L9"><code><span class="pun">微电子</span><span class="pln"> </span><span class="lit">0.570086717606</span></code></li><li class="L0"><code></code></li><li class="L1"><code><span class="typ">In</span><span class="pln"> </span><span class="pun">[</span><span class="lit">32</span><span class="pun">]:</span><span class="pln"> model</span><span class="pun">.</span><span class="pln">similarity</span><span class="pun">(</span><span class="pln">u</span><span class="str">"计算机"</span><span class="pun">,</span><span class="pln"> u</span><span class="str">"自动化"</span><span class="pun">)</span></code></li><li class="L2"><code><span class="typ">Out</span><span class="pun">[</span><span class="lit">32</span><span class="pun">]:</span><span class="pln"> </span><span class="lit">0.67417196002404789</span></code></li><li class="L3"><code></code></li><li class="L4"><code><span class="typ">In</span><span class="pln"> </span><span class="pun">[</span><span class="lit">33</span><span class="pun">]:</span><span class="pln"> model</span><span class="pun">.</span><span class="pln">similarity</span><span class="pun">(</span><span class="pln">u</span><span class="str">"女人"</span><span class="pun">,</span><span class="pln"> u</span><span class="str">"男人"</span><span class="pun">)</span></code></li><li class="L5"><code><span class="typ">Out</span><span class="pun">[</span><span class="lit">33</span><span class="pun">]:</span><span class="pln"> </span><span class="lit">0.77537125129824813</span></code></li><li class="L6"><code></code></li><li class="L7"><code><span class="typ">In</span><span class="pln"> </span><span class="pun">[</span><span class="lit">34</span><span class="pun">]:</span><span class="pln"> model</span><span class="pun">.</span><span class="pln">doesnt_match</span><span class="pun">(</span><span class="pln">u</span><span class="str">"早餐 晚餐 午餐 中心"</span><span class="pun">.</span><span class="pln">split</span><span class="pun">())</span></code></li><li class="L8"><code><span class="typ">Out</span><span class="pun">[</span><span class="lit">34</span><span class="pun">]:</span><span class="pln"> u</span><span class="str">'\u4e2d\u5fc3'</span></code></li><li class="L9"><code></code></li><li class="L0"><code><span class="typ">In</span><span class="pln"> </span><span class="pun">[</span><span class="lit">35</span><span class="pun">]:</span><span class="pln"> </span><span class="kwd">print</span><span class="pln"> model</span><span class="pun">.</span><span class="pln">doesnt_match</span><span class="pun">(</span><span class="pln">u</span><span class="str">"早餐 晚餐 午餐 中心"</span><span class="pun">.</span><span class="pln">split</span><span class="pun">())</span></code></li><li class="L1"><code><span class="pun">中心</span></code></li></ol></pre></div>
+    <div class="remark-icons"><div class="remark-icon unselectable remark-icon-empty" style="display: none;" data-anchor-id="v0p9">
+    <span class="icon-stack">
+        <i class="glyph-comment"></i>
+        <span class="remark-count"></span>
+    </span>
+</div><div class="remark-icon unselectable remark-icon-empty" style="display: none;" data-anchor-id="6vdd">
+    <span class="icon-stack">
+        <i class="glyph-comment"></i>
+        <span class="remark-count"></span>
+    </span>
+</div><div class="remark-icon unselectable remark-icon-empty" style="top: 262px; left: 1029px; display: none;" data-anchor-id="9i7m">
+    <span class="icon-stack">
+        <i class="glyph-comment"></i>
+        <span class="remark-count">+</span>
+    </span>
+</div><div class="remark-icon unselectable remark-icon-empty" style="top: 322px; left: 1029px; display: none;" data-anchor-id="5yy4">
+    <span class="icon-stack">
+        <i class="glyph-comment"></i>
+        <span class="remark-count">+</span>
+    </span>
+</div><div class="remark-icon unselectable remark-icon-empty" style="display: none;" data-anchor-id="og6n">
+    <span class="icon-stack">
+        <i class="glyph-comment"></i>
+        <span class="remark-count"></span>
+    </span>
+</div><div class="remark-icon unselectable remark-icon-empty" style="top:499px;left:1029px;" data-anchor-id="bvg2">
+    <span class="icon-stack">
+        <i class="glyph-comment"></i>
+        <span class="remark-count">+</span>
+    </span>
+</div><div class="remark-icon unselectable remark-icon-empty" style="display: none;" data-anchor-id="vqh1">
+    <span class="icon-stack">
+        <i class="glyph-comment"></i>
+        <span class="remark-count"></span>
+    </span>
+</div><div class="remark-icon unselectable remark-icon-empty" style="display: none;" data-anchor-id="3rqy">
+    <span class="icon-stack">
+        <i class="glyph-comment"></i>
+        <span class="remark-count"></span>
+    </span>
+</div><div class="remark-icon unselectable remark-icon-empty" style="display: none;" data-anchor-id="1nwy">
+    <span class="icon-stack">
+        <i class="glyph-comment"></i>
+        <span class="remark-count"></span>
+    </span>
+</div><div class="remark-icon unselectable remark-icon-empty" style="display: none;" data-anchor-id="pxm7">
+    <span class="icon-stack">
+        <i class="glyph-comment"></i>
+        <span class="remark-count"></span>
+    </span>
+</div><div class="remark-icon unselectable remark-icon-empty" style="display: none;" data-anchor-id="933i">
+    <span class="icon-stack">
+        <i class="glyph-comment"></i>
+        <span class="remark-count"></span>
+    </span>
+</div><div class="remark-icon unselectable remark-icon-empty" style="display: none;" data-anchor-id="dnor">
+    <span class="icon-stack">
+        <i class="glyph-comment"></i>
+        <span class="remark-count"></span>
+    </span>
+</div><div class="remark-icon unselectable remark-icon-empty" style="display: none;" data-anchor-id="0wcs">
+    <span class="icon-stack">
+        <i class="glyph-comment"></i>
+        <span class="remark-count"></span>
+    </span>
+</div><div class="remark-icon unselectable remark-icon-empty" style="display: none;" data-anchor-id="n6dk">
+    <span class="icon-stack">
+        <i class="glyph-comment"></i>
+        <span class="remark-count"></span>
+    </span>
+</div></div>
+</div>
+
+<!--in page preview buttons. -->
+<div class="in-page-preview-buttons in-page-preview-buttons-full-reader">
+    <ul>
+        <li class="in-page-button dropdown" id="preview-toc-button" title="内容目录 Ctrl+Alt+O">
+            <span class="dropdown-toggle icon-list" data-toggle="dropdown" style="color: rgba(102, 128, 153, 0.45098);"></span>
+            <div id="toc-list" class="dropdown-menu theme pull-right theme-white"> <!-- Add theme means this element will be changed when apply theme color. -->
+                <h3>内容目录</h3>
+                <hr>
+                <div class="table-of-contents"><div class="toc">
+<ul>
+<li><a href="https://zybuluo.com/hanxiaoyang/note/472184#word2vec训练中文模型">word2vec训练中文模型</a><ul>
+<li><a href="https://zybuluo.com/hanxiaoyang/note/472184#1准备数据与预处理">1.准备数据与预处理</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+            </div>
+        </li>
+    </ul>
+</div>
+
+<div id="reader-full-toolbar" class="reader-full-toolbar-shown" style="padding-top: 0;">
+    <ul id="reader-full-toolbar-home" class="preview-button-row">
+        <li class="preview-button-full-reader" id="preview-editor-button" title="撰写文本 Ctrl+Alt+M">
+            <span class="icon-pencil" style="color: rgb(187, 187, 187);"></span>
+        </li>
+    </ul>
+    <ul id="preview-button-row" class="preview-button-row">
+        <li class="preview-button-full-reader dropdown" id="preview-list-button" title="文本列表 Ctrl+Alt+F">
+            <span class="dropdown-toggle icon-reorder" data-toggle="dropdown" style="color: rgb(187, 187, 187);"></span>
+            <ul id="file-list" class="dropdown-menu theme-black pull-right" role="menu" style="max-height: 424px;">
+                    <li>
+                    <ul class="tag-list">
+                        <li class="tag-item item" tag-name="CS224d">
+                            <span class="pull-left"><i class="icon-tag"></i><span class="tag-name">CS224d</span></span>
+                            <span class="tag-count pull-right">1</span>
+                            <div class="clearfix"></div>
+                        </li>
+                            
+    <li class="file-item item" file-created-date="2016-06-12 10:31:00">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/404582" title="【已发布】 2016-06-12 22:11">
+        <i class="icon-share-sign"></i>
+        <span id="404582">斯坦福大学CS224d课程目录</span>
+        </a>
+    </li>
+
+                    </ul>
+                    </li>
+                    <li>
+                    <ul class="tag-list">
+                        <li class="tag-item item" tag-name="CS231n">
+                            <span class="pull-left"><i class="icon-tag"></i><span class="tag-name">CS231n</span></span>
+                            <span class="tag-count pull-right">12</span>
+                            <div class="clearfix"></div>
+                        </li>
+                            
+    <li class="file-item item" file-created-date="2016-10-31 15:00:22">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/550931" title="【已发布】 2016-11-04 11:39">
+        <i class="icon-share-sign"></i>
+        <span id="550931">斯坦福CS231n_作业内容</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-08-16 18:51:09">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/470272" title="【已发布】 2016-08-16 18:51">
+        <i class="icon-share-sign"></i>
+        <span id="470272">斯坦福CS231n学习笔记\_(3)_线性分类器之linearSVM与SoftMax</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-07-20 19:55:14">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/442868" title="【已发布】 2016-07-23 00:37">
+        <i class="icon-share-sign"></i>
+        <span id="442868">斯坦福CS231n学习笔记\_(10)_细说卷积神经网络</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-07-20 19:54:21">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/442866" title="【已发布】 2016-07-23 00:39">
+        <i class="icon-share-sign"></i>
+        <span id="442866">斯坦福CS231n学习笔记\_(9)_串一串神经网络之动手实现小例子</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-07-20 19:53:08">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/442863" title="【已发布】 2016-07-23 00:38">
+        <i class="icon-share-sign"></i>
+        <span id="442863">斯坦福CS231n学习笔记_(8)_神经网络训练与注意点</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-07-20 19:51:59">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/442861" title="【已发布】 2016-07-23 00:38">
+        <i class="icon-share-sign"></i>
+        <span id="442861">斯坦福CS231n学习笔记\_(7)_神经网络数据预处理，正则化与损失函数</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-07-20 19:51:03">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/442860" title="【已发布】 2016-07-28 09:50">
+        <i class="icon-share-sign"></i>
+        <span id="442860">斯坦福CS231n学习笔记\_(6)_神经网络结构与神经元激励函数</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-07-20 19:49:49">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/442858" title="【已发布】 2016-07-23 00:38">
+        <i class="icon-share-sign"></i>
+        <span id="442858">斯坦福CS231n学习笔记\_(5)_反向传播与它的直观理解</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-07-20 19:48:08">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/442855" title="【已发布】 2016-07-23 00:38">
+        <i class="icon-share-sign"></i>
+        <span id="442855">斯坦福CS231n学习笔记\_(4)_最优化与随机梯度下降</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-07-20 19:45:50">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/442852" title="【已发布】 2016-08-16 18:57">
+        <i class="icon-share-sign"></i>
+        <span id="442852">斯坦福CS231n学习笔记\_(3)_线性SVM与SoftMax分类器</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-07-20 19:44:22">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/442850" title="【已发布】 2016-07-29 11:13">
+        <i class="icon-share-sign"></i>
+        <span id="442850">斯坦福CS231n学习笔记\_(2)_图像分类与KNN</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-07-20 19:42:20">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/442846" title="【已发布】 2016-07-23 00:37">
+        <i class="icon-share-sign"></i>
+        <span id="442846">斯坦福CS231n学习笔记\_(1)_基础介绍</span>
+        </a>
+    </li>
+
+                    </ul>
+                    </li>
+                    <li>
+                    <ul class="tag-list">
+                        <li class="tag-item item" tag-name="CTR">
+                            <span class="pull-left"><i class="icon-tag"></i><span class="tag-name">CTR</span></span>
+                            <span class="tag-count pull-right">1</span>
+                            <div class="clearfix"></div>
+                        </li>
+                            
+    <li class="file-item item" file-created-date="2016-08-21 10:30:11">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/475105" title="【已发布】 2016-08-21 10:56">
+        <i class="icon-share-sign"></i>
+        <span id="475105">CTR预估资料汇总</span>
+        </a>
+    </li>
+
+                    </ul>
+                    </li>
+                    <li>
+                    <ul class="tag-list">
+                        <li class="tag-item item" tag-name="TensorFlow">
+                            <span class="pull-left"><i class="icon-tag"></i><span class="tag-name">TensorFlow</span></span>
+                            <span class="tag-count pull-right">1</span>
+                            <div class="clearfix"></div>
+                        </li>
+                            
+    <li class="file-item item" file-created-date="2017-02-13 21:14:18">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/653881" title="【已发布】 2017-02-13 21:15">
+        <i class="icon-share-sign"></i>
+        <span id="653881">TensorFlow手把手入门到项目</span>
+        </a>
+    </li>
+
+                    </ul>
+                    </li>
+                    <li>
+                    <ul class="tag-list">
+                        <li class="tag-item item" tag-name="caffe">
+                            <span class="pull-left"><i class="icon-tag"></i><span class="tag-name">caffe</span></span>
+                            <span class="tag-count pull-right">3</span>
+                            <div class="clearfix"></div>
+                        </li>
+                            
+    <li class="file-item item" file-created-date="2016-05-08 17:28:34">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/370344" title="【已发布】 2016-11-05 19:19">
+        <i class="icon-share-sign"></i>
+        <span id="370344">caffe安装教程(mac版)</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-05-03 14:16:17">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/364737" title="【已发布】 2016-10-26 09:29">
+        <i class="icon-share-sign"></i>
+        <span id="364737">linux(ubuntu)下的caffe编译安装</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-05-03 13:06:07">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/364680" title="【已发布】 2016-10-26 09:28">
+        <i class="icon-share-sign"></i>
+        <span id="364680">linux(CentOS)下的caffe编译安装简易手册</span>
+        </a>
+    </li>
+
+                    </ul>
+                    </li>
+                    <li>
+                    <ul class="tag-list">
+                        <li class="tag-item item" tag-name="word2vec">
+                            <span class="pull-left"><i class="icon-tag"></i><span class="tag-name">word2vec</span></span>
+                            <span class="tag-count pull-right">1</span>
+                            <div class="clearfix"></div>
+                        </li>
+                            
+    <li class="file-item item" file-created-date="2016-08-18 11:15:53">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/472184" title="【已发布】 2016-11-08 23:15">
+        <i class="icon-share-sign"></i>
+        <span id="472184" class="whiter-on-black">word2vec训练中文模型</span>
+        </a>
+    </li>
+
+                    </ul>
+                    </li>
+                    <li>
+                    <ul class="tag-list">
+                        <li class="tag-item item" tag-name="文摘供稿">
+                            <span class="pull-left"><i class="icon-tag"></i><span class="tag-name">文摘供稿</span></span>
+                            <span class="tag-count pull-right">11</span>
+                            <div class="clearfix"></div>
+                        </li>
+                            
+    <li class="file-item item" file-created-date="2016-12-03 10:25:23">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/587836" title="【已发布】 2016-12-03 10:35">
+        <i class="icon-share-sign"></i>
+        <span id="587836">机器学习性能改善备忘单</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-10-24 11:42:52">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/541797" title="【已发布】 2016-10-24 11:42">
+        <i class="icon-share-sign"></i>
+        <span id="541797">“终极学生搜索”比赛获胜者分享</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-10-23 19:38:25">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/541833" title="【已发布】 2017-01-05 16:17">
+        <i class="icon-share-sign"></i>
+        <span id="541833">通用机器学习流程与问题解决架构模板</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-10-23 10:04:11">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/541763" title="【已发布】 2016-10-24 11:46">
+        <i class="icon-share-sign"></i>
+        <span id="541763">CRA简报：计算研究与数据科学的新兴领域</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-10-23 09:55:13">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/534365" title="【已发布】 2016-10-24 11:43">
+        <i class="icon-share-sign"></i>
+        <span id="534365">自上而下的学习路径：软件工程师如何学习 “机器学习”</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-10-17 09:48:11">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/534296" title="【已发布】 2016-10-17 09:48">
+        <i class="icon-share-sign"></i>
+        <span id="534296">Jupyter Notebook的27个秘诀，技巧和快捷键</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-10-10 15:36:13">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/525021" title="【已发布】 2016-10-10 15:39">
+        <i class="icon-share-sign"></i>
+        <span id="525021">Yelper推荐系统</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-10-10 12:01:30">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/526438" title="【已发布】 2016-10-10 14:41">
+        <i class="icon-share-sign"></i>
+        <span id="526438">怎样找到一份深度学习的工作(附学习材料,资源与建议)</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-10-07 08:31:00">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/522362" title="【已发布】 2016-10-09 14:49">
+        <i class="icon-share-sign"></i>
+        <span id="522362">20个问题分辨真假数据科学家</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-10-07 08:29:05">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/522569" title="【已发布】 2016-10-09 14:46">
+        <i class="icon-share-sign"></i>
+        <span id="522569">YelpQuest—从这里开始你的旅程</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-10-07 08:28:15">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/522649" title="【已发布】 2016-10-07 08:28">
+        <i class="icon-share-sign"></i>
+        <span id="522649">债务违约预测</span>
+        </a>
+    </li>
+
+                    </ul>
+                    </li>
+                    <li>
+                    <ul class="tag-list">
+                        <li class="tag-item item" tag-name="斯坦福">
+                            <span class="pull-left"><i class="icon-tag"></i><span class="tag-name">斯坦福</span></span>
+                            <span class="tag-count pull-right">1</span>
+                            <div class="clearfix"></div>
+                        </li>
+                            
+    <li class="file-item item" file-created-date="2016-06-12 10:31:00">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/404582" title="【已发布】 2016-06-12 22:11">
+        <i class="icon-share-sign"></i>
+        <span id="404582">斯坦福大学CS224d课程目录</span>
+        </a>
+    </li>
+
+                    </ul>
+                    </li>
+                    <li>
+                    <ul class="tag-list">
+                        <li class="tag-item item" tag-name="最优化">
+                            <span class="pull-left"><i class="icon-tag"></i><span class="tag-name">最优化</span></span>
+                            <span class="tag-count pull-right">2</span>
+                            <div class="clearfix"></div>
+                        </li>
+                            
+    <li class="file-item item" file-created-date="2016-11-15 16:54:24">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/568135" title="【已发布】 2016-11-15 17:24">
+        <i class="icon-share-sign"></i>
+        <span id="568135">[分享]从梯度分析到回归建模</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-09-07 20:26:17">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/494817" title="【已发布】 2016-11-25 18:53">
+        <i class="icon-share-sign"></i>
+        <span id="494817">最优化的一些图示</span>
+        </a>
+    </li>
+
+                    </ul>
+                    </li>
+                    <li>
+                    <ul class="tag-list">
+                        <li class="tag-item item" tag-name="机器学习">
+                            <span class="pull-left"><i class="icon-tag"></i><span class="tag-name">机器学习</span></span>
+                            <span class="tag-count pull-right">3</span>
+                            <div class="clearfix"></div>
+                        </li>
+                            
+    <li class="file-item item" file-created-date="2016-11-14 10:20:22">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/566286" title="【已发布】 2016-11-14 10:20">
+        <i class="icon-share-sign"></i>
+        <span id="566286">for循环 vs 矢量化方式</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-10-26 00:01:59">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/545131" title="【已发布】 2016-10-26 00:02">
+        <i class="icon-share-sign"></i>
+        <span id="545131">plot learning curve</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-06-12 10:31:00">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/404582" title="【已发布】 2016-06-12 22:11">
+        <i class="icon-share-sign"></i>
+        <span id="404582">斯坦福大学CS224d课程目录</span>
+        </a>
+    </li>
+
+                    </ul>
+                    </li>
+                    <li>
+                    <ul class="tag-list">
+                        <li class="tag-item item" tag-name="线性回归与逻辑回归">
+                            <span class="pull-left"><i class="icon-tag"></i><span class="tag-name">线性回归与逻辑回归</span></span>
+                            <span class="tag-count pull-right">1</span>
+                            <div class="clearfix"></div>
+                        </li>
+                            
+    <li class="file-item item" file-created-date="2016-05-07 16:58:52">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/359118" title="【已发布】 2016-05-07 16:58">
+        <i class="icon-share-sign"></i>
+        <span id="359118">七月算法回归示例</span>
+        </a>
+    </li>
+
+                    </ul>
+                    </li>
+                    <li>
+                    <ul class="tag-list">
+                        <li class="tag-item item" tag-name="自然语言处理">
+                            <span class="pull-left"><i class="icon-tag"></i><span class="tag-name">自然语言处理</span></span>
+                            <span class="tag-count pull-right">1</span>
+                            <div class="clearfix"></div>
+                        </li>
+                            
+    <li class="file-item item" file-created-date="2016-06-12 10:31:00">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/404582" title="【已发布】 2016-06-12 22:11">
+        <i class="icon-share-sign"></i>
+        <span id="404582">斯坦福大学CS224d课程目录</span>
+        </a>
+    </li>
+
+                    </ul>
+                    </li>
+                    <li>
+                    <ul class="tag-list">
+                        <li class="tag-item item" tag-name="课程计划">
+                            <span class="pull-left"><i class="icon-tag"></i><span class="tag-name">课程计划</span></span>
+                            <span class="tag-count pull-right">5</span>
+                            <div class="clearfix"></div>
+                        </li>
+                            
+    <li class="file-item item" file-created-date="2016-12-06 21:55:16">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/592500" title="【已发布】 2016-12-20 10:53">
+        <i class="icon-share-sign"></i>
+        <span id="592500">数据科学课程体系(山大版)</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-11-24 23:17:38">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/578906" title="【已发布】 2016-11-24 23:38">
+        <i class="icon-share-sign"></i>
+        <span id="578906">数据实验室云平台</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-11-23 18:10:41">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/577319" title="【已发布】 2016-11-23 18:10">
+        <i class="icon-share-sign"></i>
+        <span id="577319">公开课</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-11-20 20:49:47">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/570309" title="【已发布】 2017-02-17 14:10">
+        <i class="icon-share-sign"></i>
+        <span id="570309">数据科学实训营</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-10-08 17:19:00">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/523918" title="【已发布】 2016-11-29 13:55">
+        <i class="icon-share-sign"></i>
+        <span id="523918">机器学习基石班：筑起机器学习的数学板块</span>
+        </a>
+    </li>
+
+                    </ul>
+                    </li>
+                    <li>
+                    <ul class="tag-list">
+                        <li class="tag-item item" tag-name="未分类">
+                            <span class="pull-left"><i class="icon-tag"></i><span class="tag-name">未分类</span></span>
+                            <span class="tag-count pull-right">17</span>
+                            <div class="clearfix"></div>
+                        </li>
+                            
+    <li class="file-item item" file-created-date="2017-02-14 21:58:44">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/655109" title="【已发布】 2017-02-15 22:25">
+        <i class="icon-share-sign"></i>
+        <span id="655109">课程分类</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2017-01-05 10:44:41">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/622426" title="【已发布】 2017-01-05 10:45">
+        <i class="icon-share-sign"></i>
+        <span id="622426">Python测试题</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-12-24 16:39:49">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/611596" title="【已发布】 2017-01-05 16:16">
+        <i class="icon-share-sign"></i>
+        <span id="611596">机器学习算法一览，应用建议与解决思路</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-12-22 16:03:23">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/609649" title="【已发布】 2017-02-23 17:41">
+        <i class="icon-share-sign"></i>
+        <span id="609649">数据科学课程安排</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-12-11 16:47:07">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/597287" title="【已发布】 2017-01-24 16:43">
+        <i class="icon-share-sign"></i>
+        <span id="597287">NLP班草纲</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-10-10 13:07:56">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/526510" title="【已发布】 2016-10-10 13:07">
+        <i class="icon-share-sign"></i>
+        <span id="526510">caffe MATLAB 图像识别</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-09-24 23:41:42">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/509780" title="【已发布】 2016-10-23 19:43">
+        <i class="icon-share-sign"></i>
+        <span id="509780">如何提高深度学习的性能</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-09-20 18:06:58">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/507597" title="【已发布】 2016-09-20 18:06">
+        <i class="icon-share-sign"></i>
+        <span id="507597">数据培训调查</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-09-14 09:51:34">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/501475" title="【已发布】 2016-09-14 09:52">
+        <i class="icon-share-sign"></i>
+        <span id="501475">CS231n视频目录</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-08-30 09:23:24">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/485139" title="【已发布】 2016-08-30 09:23">
+        <i class="icon-share-sign"></i>
+        <span id="485139">Awesome Recurrent Neural Networks</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-08-16 10:54:06">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/469817" title="【已发布】 2016-10-10 13:08">
+        <i class="icon-share-sign"></i>
+        <span id="469817">caffe python 图像识别</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-07-30 21:27:07">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/453400" title="【已发布】 2016-07-30 21:35">
+        <i class="icon-share-sign"></i>
+        <span id="453400">深度学习与自然语言处理(8)_斯坦福cs224d RNN，MV-RNN与RNTN</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-07-20 19:40:18">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/442165" title="【已发布】 2016-07-20 22:58">
+        <i class="icon-share-sign"></i>
+        <span id="442165">个人介绍</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-07-17 15:06:59">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/438990" title="【已发布】 2016-07-17 15:27">
+        <i class="icon-share-sign"></i>
+        <span id="438990">深度学习与自然语言处理(7)_斯坦福cs224d 语言模型，RNN，LSTM与GRU</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-07-09 11:00:35">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/426266" title="【已发布】 2016-08-27 20:02">
+        <i class="icon-share-sign"></i>
+        <span id="426266">深度学习与自然语言处理(6)_斯坦福cs224d 一起来学Tensorflow part1</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-06-26 00:59:04">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/416691" title="【已发布】 2016-06-27 01:13">
+        <i class="icon-share-sign"></i>
+        <span id="416691">深度学习与自然语言处理(4)_斯坦福cs224d 大作业测验1与解答</span>
+        </a>
+    </li>
+
+                            
+    <li class="file-item item" file-created-date="2016-06-18 17:23:33">
+        <a tabindex="-1" href="https://zybuluo.com/hanxiaoyang/note/411632" title="【已发布】 2016-06-19 15:19">
+        <i class="icon-share-sign"></i>
+        <span id="411632">深度学习与自然语言处理(3)_斯坦福cs224d Lecture 3</span>
+        </a>
+    </li>
+
+                    </ul>
+                    </li>
+            </ul>
+            <ul id="file-list-topbar" class="dropdown-menu theme-black pull-right" role="menu">
+                <li id="search-file-bar">
+                    <i class="icon-search icon-large"></i>
+                    <input type="text" id="search-file-textbox" placeholder="搜索 hanxiaoyang 的文稿标题， * 显示全部">
+                    <i class="icon-level-down icon-rotate-90 icon-large"></i>
+                </li>
+                <li id="tag-file-bar">
+                    以下【标签】将用于标记这篇文稿：
+                </li>
+            </ul>
+        </li>
+        <li class="preview-button-full-reader" id="preview-theme-button" title="主题切换 Ctrl+Alt+Y">
+            <span class="icon-adjust" style="color: rgb(187, 187, 187);"></span>
+        </li>
+        <li class="preview-button-full-reader" id="preview-fullscreen-button" title="全屏模式 F11">
+            <span class="icon-fullscreen" style="color: rgb(187, 187, 187);"></span>
+        </li>
+        <li class="preview-button-full-reader wmd-spacer"></li>
+        <li class="preview-button-full-reader dropdown" id="preview-about-button" title="关于本站">
+            <span class="dropdown-toggle icon-info-sign" data-toggle="dropdown" data-hover="dropdown" data-delay="100" data-close-others="true" style="color: rgb(187, 187, 187);"></span>
+            <ul id="about-menu" class="dropdown-menu theme-black pull-right" role="menu">
+                <li title="下载全平台客户端"><a tabindex="-1" href="https://www.zybuluo.com/cmd" target="_blank"><i class="icon-laptop"></i>下载客户端</a></li>
+                <li title="@ghosert"><a tabindex="-1" href="http://www.weibo.com/ghosert" target="_blank"><i class="icon-weibo"></i>关注开发者</a></li>
+                <li title=""><a tabindex="-1" href="https://github.com/ghosert/cmd-editor/issues" target="_blank"><i class="icon-github-alt"></i>报告问题，建议</a></li>
+                <li title="support@zybuluo.com"><a tabindex="-1" href="mailto:support@zybuluo.com" target="_blank"><i class="icon-envelope"></i>联系我们</a></li>
+            </ul>
+        </li>
+    </ul>
+</div>
+<ul id="reader-full-toolbar-tail" class="reader-full-toolbar-tail-shown">
+    <li class="preview-button-full-reader" id="preview-hidden-button" title="隐藏工具栏 Ctrl+Alt+I">
+        <span class="icon-chevron-sign-right" style="color: rgb(187, 187, 187);"></span>
+    </li>
+</ul>
+
+
+
+
+
+
+<!-- side remark, hidden when loading. -->
+<div class="remark-list side-remark-hidden">
+    <div class="remark-items"></div>
+    <div class="leave-remark unselectable"><span class="icon-plus-sign-alt"></span><span>添加新批注</span></div>
+    <div class="new-remark">
+    <div class="remark-head"><a><img src="./word2vec训练中文模型 - 作业部落 Cmd Markdown 编辑阅读器_files/default-head.jpg" style="width: 32px; height: 32px;"></a></div>
+    <div class="remark-author unselectable"><strong></strong></div>
+    <div class="remark-editor" contenteditable="true" spellcheck="false"></div>
+    <!-- this will be filled up by js.
+    <div class="inline-error">402/400</div> for new remark
+    <div class="inline-error">202/200</div> for new reply
+    -->
+    <div class="remark-footer unselectable">
+        <button class="remark-save btn-link">保存</button>
+        <button class="remark-cancel btn-link">取消</button>
+    </div>
+
+        <!-- clone the template $('.new-remark-reply').html() to here.-->
+        <div class="remark-notice">在作者公开此批注前，只有你和作者可见。</div>
+    </div>
+</div>
+
+<!-- template for new remark/reply -->
+<div class="new-remark-reply side-remark-hidden">
+    <div class="remark-head"><a><img src="./word2vec训练中文模型 - 作业部落 Cmd Markdown 编辑阅读器_files/default-head.jpg"></a></div>
+    <div class="remark-author unselectable"></div>
+    <div class="remark-editor" contenteditable="true" spellcheck="false"></div>
+    <!-- this will be filled up by js.
+    <div class="inline-error">402/400</div> for new remark
+    <div class="inline-error">202/200</div> for new reply
+    -->
+    <div class="remark-footer unselectable">
+        <button class="remark-save btn-link">保存</button>
+        <button class="remark-cancel btn-link">取消</button>
+    </div>
+</div>
+
+<!-- template for .remark-item/.remark-reply -->
+<div class="remark-item-reply side-remark-hidden">
+    <div class="remark-head"><a><img src="./word2vec训练中文模型 - 作业部落 Cmd Markdown 编辑阅读器_files/default-head.jpg"></a></div>
+    <div class="remark-author unselectable"></div>
+    <div class="remark-delete-link unselectable"><span class="icon-remove"></span></div> <!--This is mainly for deleting remark-reply, shown when author/remark hovering on remark-reply.-->
+    <div class="remark-editor" contenteditable="true" spellcheck="false"></div>
+    <!-- this will be filled up by js.
+    <div class="inline-error">402/400</div> for new remark
+    <div class="inline-error">202/200</div> for new reply
+    -->
+    <div class="remark-footer unselectable">
+        <button class="remark-edit btn-link">修改</button>
+        <button class="remark-save btn-link">保存</button>
+        <button class="remark-cancel btn-link">取消</button>
+        <button class="remark-delete btn-link">删除</button>
+    </div>
+</div>
+
+<!-- template for remark-item-->
+<div class="remark-item side-remark-hidden" data-rand-id="" data-version-id="">
+    <div class="remark-published-link unselectable"><span class="icon-link icon-rotate-90"></span></div>
+    <ul class="remark-options theme unselectable theme-white">
+        <li class="remark-private"><span class="icon-eye-close"></span><span>私有</span></li>
+        <li class="remark-public"><span class="icon-group"></span><span>公开</span></li>
+        <li class="remark-delete"><span class="icon-remove"></span><span>删除</span></li>
+    </ul>
+
+    <!-- clone the template $('.remark-item-reply').html() to here.-->
+
+    <button class="remark-reply-view-more btn-link">查看更早的 5 条回复</button>
+    <div class="remark-replies">
+        <!--
+        <div class="remark-reply">
+            clone the template $('.remark-item-reply').html() to here.
+        </div>
+        -->
+    </div>
+
+    <div class="leave-reply unselectable"><span>回复批注</span></div>
+    <div class="new-reply">
+        <!-- clone the template $('.new-remark-reply').html() to here.-->
+    </div>
+</div>
+
+<!-- jiawzhang NOTICE: .remark-icons will be put to mdeditor.mako and user_note.mako, where next to .wmd-preview -->
+<!-- <div class="remark-icons"></div> -->
+
+<!-- template for remark-icon -->
+<div class="remark-icon unselectable side-remark-hidden remark-icon-empty" style="display: none;">
+    <span class="icon-stack">
+        <i class="glyph-comment"></i>
+        <span class="remark-count"></span>
+    </span>
+</div>
+
+
+<!-- canvas, hidden always, this is used to convert svg to canvas and then convert canvas to png. -->
+<canvas id="svg-canvas-image" class="editor-reader-hidden-always"></canvas>
+
+<!-- This is the image panel to hold enlarged image/svg. -->
+<div id="large-image-panel">
+    <img id="large-image">
+</div>
+
+
+    
+
+
+    <!-- Hidden Popup Modal -->
+    <div id="notification-popup-window" class="modal hide fade theme theme-white" tabindex="-1" role="dialog" aria-labelledby="notification-title" aria-hidden="true">
+        <div class="modal-header theme theme-white">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="notification-title">通知</h3>
+        </div>
+        <div class="modal-body theme theme-white">
+            <p></p>
+        </div>
+        <div class="modal-footer theme theme-white">
+            <button id="notification-cancel" class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
+            <button id="notification-confirm" class="btn btn-primary">确认</button>
+        </div>
+    </div>
+
+    <!-- zybuluo's foot -->
+
+    <script src="./word2vec训练中文模型 - 作业部落 Cmd Markdown 编辑阅读器_files/288313bb.base.lib.min.js.download"></script>
+
+    <script>
+        Namespace('com.zybuluo.base');
+        com.zybuluo.base.initData = {
+            globalPromptUrl: "https://zybuluo.com/global/prompt",
+        };
+    </script>
+
+    
+    <!--mathjax-->
+    <!--blacker: 1 below means font weight.-->
+    <script type="text/x-mathjax-config;executed=true">
+        MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ["\\(","\\)"]], processEscapes: true }, TeX: { equationNumbers: { autoNumber: "AMS" } }, messageStyle: "none", SVG: { blacker: 1 }});
+    </script>
+    <script src="./word2vec训练中文模型 - 作业部落 Cmd Markdown 编辑阅读器_files/mathJax.js.download"></script>
+    <!--mathjax source code is here: https://github.com/mathjax/MathJax.-->
+    <script src="./word2vec训练中文模型 - 作业部落 Cmd Markdown 编辑阅读器_files/mathJax.js(1).download"></script>
+
+    <script>
+        Namespace('com.zybuluo.mdeditor.layout');
+        com.zybuluo.mdeditor.layout.initData = {
+            // '' means not logged in, otherwise the logged in username, for mdeditor.mako, this value will be reset in render.js otherwise, for user_note.mako, it's rendered by server side.
+            loggedInUsername: '',
+            isPageOwner: 'False' === 'True' ? true : false,
+            loginComeFromUrl: 'https://zybuluo.com/login?return_to=https%3A%2F%2Fzybuluo.com%2Fhanxiaoyang%2Fnote%2F472184',
+            noteRemarksUrl: "https://zybuluo.com/note/472184/remarks", 
+            newNoteRemarkUrl: "https://zybuluo.com/note/472184/remark/new", 
+            updateNoteRemarkUrl: "https://zybuluo.com/note/472184/remark/update", 
+            deleteNoteRemarkUrl: "https://zybuluo.com/note/472184/remark/delete", 
+            publishNoteRemarkUrl: "https://zybuluo.com/note/472184/remark/publish", 
+            newNoteRemarkReplyUrl: "https://zybuluo.com/note/472184/remark_reply/new", 
+            updateNoteRemarkReplyUrl: "https://zybuluo.com/note/472184/remark_reply/update", 
+            deleteNoteRemarkReplyUrl: "https://zybuluo.com/note/472184/remark_reply/delete", 
+        };
+
+        // BEGIN: pace.js configuration
+        window.paceOptions = {
+            // disable others, enable for ajax call only,
+            ajax: true,
+            document: false,
+            elements: false,
+            eventLag: false,
+        };
+        // jiawzhang NOTICE: to make sure pace.js is working for any ajax call especially the jquery ajax, add 'Pace.restart()' into jquery ajax call like '$.post'
+        // Originally, pace 0.5.6 doesn't support jquery ajax, see details in: https://github.com/HubSpot/pace/issues/29
+        // END: pace.js configuration
+
+    </script>
+
+    <script src="./word2vec训练中文模型 - 作业部落 Cmd Markdown 编辑阅读器_files/7a70106e.layout.lib.min.js.download"></script>
+
+    <script src="./word2vec训练中文模型 - 作业部落 Cmd Markdown 编辑阅读器_files/dc648f35.layout.min.js.download"></script><div id="medium-editor-toolbar-1" class="medium-editor-toolbar"><ul id="medium-editor-toolbar-actions" class="medium-editor-toolbar-actions clearfix"><li><button data-action="remark" class=" medium-editor-button-first"><i class="icon-comment"></i></button></li><li><button data-action="highlight" class=" medium-editor-button-last"><i class="icon-pencil"></i></button></li></ul></div>
+
+
+
+    
+
+    <!-- https://zybuluo.com/static/assets/mdeditor/user_note.lib.min.js -->
+    <!-- -->
+
+    <script>
+        Namespace('com.zybuluo.mdeditor.user_note');
+        com.zybuluo.mdeditor.user_note.initData = {
+            isLoggedIn: 'False',
+            mdeditorUrl: "https://zybuluo.com/mdeditor",
+            passwordPassed: 'True' === 'True' ? true : false,
+        };
+    </script>
+
+    <script src="./word2vec训练中文模型 - 作业部落 Cmd Markdown 编辑阅读器_files/6cd3112e.user_note.min.js.download"></script>
+
+
+
+
+
+    
+</body></html>
